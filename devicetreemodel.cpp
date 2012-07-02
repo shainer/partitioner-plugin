@@ -1,4 +1,4 @@
-#include "devicetreemodel.h"
+#include <devicetreemodel.h>
 #include <kio/global.h>
 
 using namespace Solid::Partitioner::Devices;

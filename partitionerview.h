@@ -4,8 +4,10 @@
 #include <QObject>
 #include <QDeclarativeView>
 #include <QDeclarativeContext>
-#include "buttonboxmodel.h"
-#include "devicetreemodel.h"
+
+#include <buttonboxmodel.h>
+#include <devicetreemodel.h>
+
 #include <solid/partitioner/volumetree.h>
 #include <solid/partitioner/volumemanager.h>
 

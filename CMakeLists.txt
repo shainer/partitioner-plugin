@@ -5,7 +5,9 @@ find_package(KDE4 REQUIRED)
 include (KDE4Macros)
 
 include_directories( ${QT_INCLUDES}
-                     ${CMAKE_INSTALL_PREFIX}/include/solid/partitioner
+                     ${CMAKE_CURRENT_SOURCE_DIR}
+                     ${CMAKE_CURRENT_BINARY_DIR}
+                     ${CMAKE_INSTALL_PREFIX}/include
                      ${CMAKE_INSTALL_PREFIX}/plugin/include )
 
 set(test_SRCS

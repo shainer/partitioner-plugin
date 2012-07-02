@@ -1,4 +1,4 @@
-#include "buttonboxmodel.h"
+#include <buttonboxmodel.h>
 
 ButtonBoxTuple::ButtonBoxTuple(const QString& buttonName, const QString& iconName, const QString& dialogName)
     : m_buttonName(buttonName)

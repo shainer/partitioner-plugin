@@ -1,7 +1,7 @@
-#include "partitionerview.h"
-#include "devicetreemodel.h"
-#include "../kdelibs/solid/solid/partitioner/volumemanager.h"
-#include "../kdelibs/solid/solid/partitioner/actions/formatpartitionaction.h"
+#include <partitionerview.h>
+#include <devicetreemodel.h>
+#include <solid/partitioner/volumemanager.h>
+#include <solid/partitioner/actions/formatpartitionaction.h>
 #include <QGraphicsObject>
 #include <QDeclarativeContext>
 
@@ -21,7 +21,7 @@ PartitionerView::PartitionerView(QObject* parent)
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
     QObject::connect( m_manager, SIGNAL(deviceRemoved(QString)), this, SLOT(doDeviceRemoved(QString)) );
     
-    m_view.setSource(QUrl::fromLocalFile("qml/main.qml"));
+    m_view.setSource(QUrl::fromLocalFile("../../install/plugin/qml/main.qml")); // TODO: change this
     m_view.show();
 }
 

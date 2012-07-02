@@ -26,9 +26,12 @@ public slots:
     void doDeviceRemoved(QString);
     void doDiskTreeChanged(VolumeTree);
     
+    void doSelectedDiskChanged(QString);
+    
 private:
     QDeclarativeView m_view;
     QDeclarativeContext* m_context;
+    QObject* m_rootObject;
     
     ButtonBoxModel m_boxmodel;
     DeviceTreeModel m_treeModel;

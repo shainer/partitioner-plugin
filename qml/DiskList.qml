@@ -1,8 +1,9 @@
 import QtQuick 1.1
 
 Rectangle {
+    id: diskList
     width: window.width / 3
-    height: 400
+    height: (window.height * 4) / 7
     
     border {
         width: 2
@@ -12,6 +13,8 @@ Rectangle {
     ListView {
         id: diskListView
         model: diskModel
+        
+        highlight: SelectionRectangle {}
         
         anchors.fill: parent
         anchors.margins: 6
@@ -24,7 +27,7 @@ Rectangle {
             
             MouseArea {
                 anchors.fill: parent
-                onClicked: console.log(parent.text)
+                onClicked: { diskListView.currentIndex = index; window.selectedDiskChanged(modelData) }
             }
         }
     }

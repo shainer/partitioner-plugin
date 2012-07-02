@@ -7,6 +7,8 @@ Rectangle
     height: 700
     color: "#DDDDDD"
     
+    signal selectedDiskChanged (string newDisk)
+    
     Column {
         spacing: 10
         

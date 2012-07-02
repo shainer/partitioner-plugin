@@ -16,17 +16,23 @@ PartitionerView::PartitionerView(QObject* parent)
     setButtonBox();
     setDiskList();
     setActionList();
-    setDiskTree( m_diskList.last() );
+    setDiskTree( m_diskList.first() );
+    
+    m_view.setSource(QUrl::fromLocalFile("../../install/plugin/qml/main.qml")); // TODO: change this
+    m_rootObject = m_view.rootObject();
     
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
     QObject::connect( m_manager, SIGNAL(deviceRemoved(QString)), this, SLOT(doDeviceRemoved(QString)) );
     
-    m_view.setSource(QUrl::fromLocalFile("../../install/plugin/qml/main.qml")); // TODO: change this
+    QObject::connect( m_rootObject, SIGNAL(selectedDiskChanged(QString)), this, SLOT(doSelectedDiskChanged(QString)) );
+    
     m_view.show();
 }
 
 PartitionerView::~PartitionerView()
-{}
+{
+    m_context->deleteLater();
+}
 
 void PartitionerView::setButtonBox()
 {
@@ -87,4 +93,9 @@ void PartitionerView::doDeviceRemoved(QString device)
 void PartitionerView::doDiskTreeChanged(VolumeTree newTree)
 {
     m_treeModel.setDisk(newTree);
+}
+
+void PartitionerView::doSelectedDiskChanged(QString newDisk)
+{
+    setDiskTree(newDisk);
 }

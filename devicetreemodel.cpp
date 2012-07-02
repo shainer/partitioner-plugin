@@ -28,7 +28,9 @@ VolumeTree DeviceTreeModel::currentDisk() const
 
 void DeviceTreeModel::setDisk(const VolumeTree& disk)
 {
+    emit beginResetModel();
     m_disk = disk;
+    emit endResetModel();
 }
 
 int DeviceTreeModel::rowCount(const QModelIndex& parent) const

@@ -22,7 +22,7 @@ Rectangle
             model: buttonBoxModel
             
             delegate:
-                Button {
+                ActionButton {
                     text: buttonName
                     iconPath: iconName
                 }

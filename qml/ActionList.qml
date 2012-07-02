@@ -2,7 +2,7 @@ import QtQuick 1.0
 
 Rectangle {
     width: window.width
-    height: 200
+    height: (window.height / 7) * 2
     
     border {
         width: 2

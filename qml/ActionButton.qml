@@ -10,16 +10,16 @@ Rectangle {
     signal clicked
     
     height: buttonbox.height
-    width: window.width / 6
+    width: window.width / 8
     
     border {
         width: 2
-        color: "black"
+        color: "gray"
     }
     
-    color: "#EEDDDD"
+    color: "#99CCCC"
     smooth: true
-    radius: 4
+    radius: 5
     
     MouseArea {
         id: mouseArea
@@ -30,7 +30,7 @@ Rectangle {
     Column {
         id: layout
         anchors.fill: parent
-        spacing: 3
+        spacing: 10
         
         Image {
             id: buttonIcon

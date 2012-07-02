@@ -3,7 +3,7 @@ import QtQuick 1.0
 Rectangle
 {    
     width: window.width
-    height: 75
+    height: 70
     
     border {
         width: 1
@@ -18,7 +18,6 @@ Rectangle
         Repeater
         {
             id: repeater
-            
             model: buttonBoxModel
             
             delegate:

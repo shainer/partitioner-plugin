@@ -36,12 +36,14 @@ PartitionerView::~PartitionerView()
 
 void PartitionerView::setButtonBox()
 {
-    m_boxmodel.addTuple(ButtonBoxTuple("Create partition", "icon.gif", "createPartition"));
-    m_boxmodel.addTuple(ButtonBoxTuple("Remove partition", "icon.gif", "createPartition"));
-    m_boxmodel.addTuple(ButtonBoxTuple("Resize/move partition", "icon.gif", "createPartition"));
-    m_boxmodel.addTuple(ButtonBoxTuple("Format partition", "icon.gif", "formatPartition"));
-    m_boxmodel.addTuple(ButtonBoxTuple("Create partition table", "icon.gif", "createPartition"));
-    m_boxmodel.addTuple(ButtonBoxTuple("Remove partition table", "icon.gif", "createPartition"));    
+    m_boxmodel.addTuple( ButtonBoxTuple("Create partition", "icon.gif", "createPartition") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Remove partition", "icon.gif", "createPartition") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Resize/move partition", "icon.gif", "createPartition") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Format partition", "icon.gif", "formatPartition") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Create partition table", "icon.gif", "createPartition") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Remove partition table", "icon.gif", "createPartition") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Apply actions", "icon.gif", "apply") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Exit", "icon.gif", "exit") );
     
     m_context->setContextProperty("buttonBoxModel", &m_boxmodel);
 }

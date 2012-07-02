@@ -26,11 +26,11 @@ target_link_libraries(test ${CMAKE_INSTALL_PREFIX}/lib/libsolid.so
                            ${KDE4_KIO_LIBRARY})
 
 install(DIRECTORY ./qml
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/qml
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin
         FILES_MATCHING PATTERN "*.qml"
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-install(DIRECTORY ./
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/include
-        FILES_MATCHING PATTERN "*.h"
-        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+install(FILES buttonboxmodel.h
+              devicetreemodel.h
+              partitionerview.h
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/include)

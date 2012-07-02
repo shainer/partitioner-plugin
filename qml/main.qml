@@ -8,6 +8,7 @@ Rectangle
     color: "#DDDDDD"
     
     signal selectedDiskChanged (string newDisk)
+    signal selectedDeviceChanged (string newDevice)
     
     Column {
         spacing: 10

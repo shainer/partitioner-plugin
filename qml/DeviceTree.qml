@@ -3,7 +3,7 @@ import QtQuick 1.1
 Rectangle {
     id: deviceTree
     width: (window.width * 2) / 3
-    height: 400
+    height: (window.height * 4) / 7
     
     border {
         width: 2
@@ -13,13 +13,12 @@ Rectangle {
     ListView {
         id: deviceTreeView
         
-        anchors.fill: parent
-        anchors.margins: 6
-        
         model: deviceTreeModel
         delegate: deviceTreeDelegate
-        highlight: Rectangle { anchors.fill: parent; color: "#FFFF88"; radius: 5}
-        focus: true
+        highlight: SelectionRectangle {}
+        
+        anchors.fill: parent
+        anchors.margins: 6
     }
     
     Component {
@@ -35,21 +34,24 @@ Rectangle {
             
             MouseArea {
                 anchors.fill: parent
-                onClicked: deviceTreeView.currentIndex = index
+                onClicked: { deviceTreeView.currentIndex = index; window.selectedDeviceChanged(deviceName) }
             }
             
             Row {
                 anchors.fill: parent
                 anchors.margins: 6
                 
-                Text {
-                    id: space
-                    text: if (partitionType == 2)
-                            "        "
-                        else if (deviceType != 0)
-                            "    "
-                        else
-                            ""
+                Rectangle {
+                    id: spacer1
+                    color: "white"
+                    
+                    height: 20
+                    width: if (partitionType == 2)
+                             40
+                           else if (deviceType != 0)
+                             20
+                           else
+                             0
                 }
                 
                 Text {
@@ -68,6 +70,20 @@ Rectangle {
                     text: deviceMountPoint
                     
                     width: (deviceTree.width) / 5
+                }
+                
+                Rectangle {
+                    id: spacer2
+                    color: "white"
+                    
+                    height: 20
+                    width: if (spacer1.width == 0)
+                             40
+                           else if (spacer1.width == 20)
+                             20
+                           else if (spacer1.width == 40)
+                             0
+                           
                 }
                 
                 Text {

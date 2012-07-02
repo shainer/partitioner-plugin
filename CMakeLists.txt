@@ -34,3 +34,5 @@ install(FILES buttonboxmodel.h
               devicetreemodel.h
               partitionerview.h
         DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/include)
+
+add_subdirectory(qml/dialogs)

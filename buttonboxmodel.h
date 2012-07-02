@@ -1,3 +1,13 @@
+/*
+ * Model for the ButtonBox displaying available actions
+
+   Copyright (C) 2012 Lisa Vitolo <shainer@chakra-project.org>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or (at your option) any later version.
+*/
 #ifndef BUTTONBOXMODEL_H
 #define BUTTONBOXMODEL_H
 
@@ -10,7 +20,7 @@ public:
     
     QString buttonName() const;
     QString iconName() const;
-    QString dialogName() const;
+    QString dialogName() const; /* FIXME: probably this isn't useful */
     
 private:
     QString m_buttonName;

@@ -1,8 +1,20 @@
+/*
+ * Main class that displays and handles events from QML GUI
+
+   Copyright (C) 2012 Lisa Vitolo <shainer@chakra-project.org>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or (at your option) any later version.
+*/
+
 #include <partitionerview.h>
 #include <devicetreemodel.h>
+
 #include <solid/partitioner/volumemanager.h>
 #include <solid/partitioner/actions/formatpartitionaction.h>
-#include <QGraphicsObject>
+
 #include <QDeclarativeContext>
 
 using namespace Solid::Partitioner;
@@ -12,11 +24,12 @@ PartitionerView::PartitionerView(QObject* parent)
     : QObject(parent)
     , m_context( m_view.rootContext() )
     , m_manager( VolumeManager::instance() )
-{    
+{
+    /* Sets all the models relative to the QML views */
     setButtonBox();
     setDiskList();
     setActionList();
-    setDiskTree( m_diskList.first() );
+    setDiskTree( m_diskList.first() ); /* the disk initially displayed is the first in the list */
     
     m_view.setSource(QUrl::fromLocalFile("../../install/plugin/qml/main.qml")); // TODO: change this
     m_rootObject = m_view.rootObject();
@@ -35,6 +48,7 @@ PartitionerView::~PartitionerView()
     m_context->deleteLater();
 }
 
+/* This sets the information needed to display the button box on top */
 void PartitionerView::setButtonBox()
 {
     m_boxmodel.addTuple( ButtonBoxTuple("Create partition", "icon.gif", "createPartition") );
@@ -49,6 +63,7 @@ void PartitionerView::setButtonBox()
     m_context->setContextProperty("buttonBoxModel", &m_boxmodel);
 }
 
+/* This sets the model for the list of registered actions */
 void PartitionerView::setActionList()
 {
     QStringList actionDescriptions;
@@ -60,12 +75,14 @@ void PartitionerView::setActionList()
     m_context->setContextProperty("actionModel", QVariant::fromValue(actionDescriptions));
 }
 
+/* This sets the model for the view that displays the currently available disks */
 void PartitionerView::setDiskList()
 {
     m_diskList = VolumeManager::instance()->allDiskTrees().keys();
     m_context->setContextProperty("diskModel", QVariant::fromValue(m_diskList));
 }
 
+/* This sets the model for the TreeView, displaying the layout of the specifying disk */
 void PartitionerView::setDiskTree(const QString& diskName)
 {
     VolumeTree diskTree = m_manager->diskTree( diskName );
@@ -74,12 +91,19 @@ void PartitionerView::setDiskTree(const QString& diskName)
     m_context->setContextProperty("deviceTreeModel", &m_treeModel);
 }
 
+/* When a new device is added to the system, refreshes the disk list in case it was a disk */
 void PartitionerView::doDeviceAdded(VolumeTree newTree)
 {
     Q_UNUSED(newTree)
     setDiskList();
 }
 
+/*
+ * When a device is removed from the system, refreshes the disk list in case it was a disk; furthermore, registered actions
+ * that were relative to the removed device are deleted, so we update the action list too.
+ * 
+ * If the user removed the disk that was currently displayed in the TreeView, sets a new tree for displaying.
+ */
 void PartitionerView::doDeviceRemoved(QString device)
 {
     setDiskList();
@@ -93,11 +117,19 @@ void PartitionerView::doDeviceRemoved(QString device)
     }
 }
 
+/*
+ * This is called when a disk layout changes for whatever reason: updates the model.
+ * 
+ * NOTE: the correspondent signal is sent when a registered action changed the disk's layout;
+ * given that to register an action on a device you must select the device, the modified tree is always
+ * the one currently displayed in the TreeView. So we update that one.
+ */
 void PartitionerView::doDiskTreeChanged(VolumeTree newTree)
 {
     m_treeModel.setDisk(newTree);
 }
 
+/* If the user selected a new disk for displaying, changes the TreeView data. */
 void PartitionerView::doSelectedDiskChanged(QString newDisk)
 {
     setDiskTree(newDisk);

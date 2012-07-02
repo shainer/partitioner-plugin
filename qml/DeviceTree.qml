@@ -1,3 +1,13 @@
+/*
+ * TreeView displaying a disk's layout.
+
+   Copyright (C) 2012 Lisa Vitolo <shainer@chakra-project.org>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or (at your option) any later version.
+*/
 import QtQuick 1.1
 
 Rectangle {
@@ -41,6 +51,10 @@ Rectangle {
                 anchors.fill: parent
                 anchors.margins: 6
                 
+                /*
+                 * Indentation: partitions are indented from the disk, and logical partitions are even more indented
+                 * to show their dependence on the extended one.
+                 */
                 Rectangle {
                     id: spacer1
                     color: "white"
@@ -72,6 +86,9 @@ Rectangle {
                     width: (deviceTree.width) / 5
                 }
                 
+                /*
+                 * This makes sure the following items are aligned correctly.
+                 */
                 Rectangle {
                     id: spacer2
                     color: "white"
@@ -83,7 +100,6 @@ Rectangle {
                              20
                            else if (spacer1.width == 40)
                              0
-                           
                 }
                 
                 Text {

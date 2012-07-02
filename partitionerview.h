@@ -27,6 +27,7 @@ public slots:
     void doDiskTreeChanged(VolumeTree);
     
     void doSelectedDiskChanged(QString);
+    void doActionButtonClicked(QString);
     
 private:
     QDeclarativeView m_view;

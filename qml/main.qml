@@ -9,6 +9,7 @@ Rectangle
     
     signal selectedDiskChanged (string newDisk)
     signal selectedDeviceChanged (string newDevice)
+    signal actionButtonClicked (string actionName)
     
     Column {
         spacing: 10

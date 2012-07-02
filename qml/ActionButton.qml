@@ -7,8 +7,6 @@ Rectangle {
     property string text: "Button"
     property string iconPath: "none"
     
-    signal clicked
-    
     height: buttonbox.height
     width: window.width / 8
     
@@ -24,7 +22,7 @@ Rectangle {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        onClicked: actionButton.clicked();
+        onClicked: window.actionButtonClicked(actionButton.text)
     }
     
     Column {

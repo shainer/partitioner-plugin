@@ -25,6 +25,7 @@ PartitionerView::PartitionerView(QObject* parent)
     QObject::connect( m_manager, SIGNAL(deviceRemoved(QString)), this, SLOT(doDeviceRemoved(QString)) );
     
     QObject::connect( m_rootObject, SIGNAL(selectedDiskChanged(QString)), this, SLOT(doSelectedDiskChanged(QString)) );
+    QObject::connect( m_rootObject, SIGNAL(actionButtonClicked(QString)), this, SLOT(doActionButtonClicked(QString)) );
     
     m_view.show();
 }
@@ -100,4 +101,9 @@ void PartitionerView::doDiskTreeChanged(VolumeTree newTree)
 void PartitionerView::doSelectedDiskChanged(QString newDisk)
 {
     setDiskTree(newDisk);
+}
+
+void PartitionerView::doActionButtonClicked(QString actionName)
+{
+    qDebug() << actionName;
 }

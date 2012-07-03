@@ -15,9 +15,11 @@
 #include <QObject>
 #include <QDeclarativeView>
 #include <QDeclarativeContext>
+#include <QGraphicsObject>
 
 #include <buttonboxmodel.h>
 #include <devicetreemodel.h>
+#include "pluginregister.h"
 
 #include <solid/partitioner/volumetree.h>
 #include <solid/partitioner/volumemanager.h>
@@ -42,7 +44,8 @@ public slots:
 private:
     QDeclarativeView m_view;
     QDeclarativeContext* m_context;
-    QObject* m_rootObject;
+    QGraphicsObject* m_rootObject;
+    QWidgetsPlugin plugin;
     
     /* Models */
     ButtonBoxModel m_boxmodel;

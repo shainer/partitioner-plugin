@@ -8,7 +8,7 @@
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
 */
-import QtQuick 1.0
+import QtQuick 1.1
 
 Rectangle
 {    

@@ -11,6 +11,9 @@
 
 #include <partitionerview.h>
 #include <devicetreemodel.h>
+#include <qdeclarative.h>
+#include <qmlcombobox.h>
+#include "pluginregister.h"
 
 #include <solid/partitioner/volumemanager.h>
 #include <solid/partitioner/actions/formatpartitionaction.h>
@@ -31,7 +34,10 @@ PartitionerView::PartitionerView(QObject* parent)
     setActionList();
     setDiskTree( m_diskList.first() ); /* the disk initially displayed is the first in the list */
     
+    plugin.registerTypes("ComboBox");
     m_view.setSource(QUrl::fromLocalFile("../../install/plugin/qml/main.qml")); // TODO: change this
+    m_view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    
     m_rootObject = m_view.rootObject();
     
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );

@@ -15,6 +15,9 @@ set(test_SRCS
     partitionerview.cpp
     buttonboxmodel.cpp
     devicetreemodel.cpp
+
+    qmlcombobox.cpp
+    pluginregister.cpp
 )
 
 kde4_add_executable(test ${test_SRCS})
@@ -25,14 +28,12 @@ target_link_libraries(test ${CMAKE_INSTALL_PREFIX}/lib/libsolid.so
                            ${QT_QTDECLARATIVE_LIBRARY}
                            ${KDE4_KIO_LIBRARY})
 
-install(DIRECTORY ./qml
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin
-        FILES_MATCHING PATTERN "*.qml"
-        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-
 install(FILES buttonboxmodel.h
               devicetreemodel.h
               partitionerview.h
+              qmlcombobox.h
+              pluginregister.h
         DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/include)
 
-add_subdirectory(qml/dialogs)
+install(FILES QWidgets/qmldir
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/qml/QWidgets)

@@ -4,6 +4,11 @@ cmake_minimum_required(VERSION 2.6)
 find_package(KDE4 REQUIRED)
 include (KDE4Macros)
 
+# Compiles with debugging symbols (Debug mode)
+if (CMAKE_COMPILER_IS_GNUCC)
+    set(CMAKE_C_FLAGS_DEBUG "-ggdb")
+endif(CMAKE_COMPILER_IS_GNUCC)
+
 include_directories( ${QT_INCLUDES}
                      ${CMAKE_CURRENT_SOURCE_DIR}
                      ${CMAKE_CURRENT_BINARY_DIR}

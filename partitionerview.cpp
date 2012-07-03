@@ -36,7 +36,7 @@ PartitionerView::PartitionerView(QObject* parent)
     
     plugin.registerTypes("ComboBox");
     m_view.setSource(QUrl::fromLocalFile("../../install/plugin/qml/main.qml")); // TODO: change this
-    m_view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    m_view.setResizeMode(QDeclarativeView::SizeViewToRootObject);
     
     m_rootObject = m_view.rootObject();
     
@@ -63,8 +63,9 @@ void PartitionerView::setButtonBox()
     m_boxmodel.addTuple( ButtonBoxTuple("Format partition", "icon.gif", "formatPartition") );
     m_boxmodel.addTuple( ButtonBoxTuple("Create partition table", "icon.gif", "createPartition") );
     m_boxmodel.addTuple( ButtonBoxTuple("Remove partition table", "icon.gif", "createPartition") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Undo", "icon.gif", "undo") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Redo", "icon.gif", "redo") );
     m_boxmodel.addTuple( ButtonBoxTuple("Apply actions", "icon.gif", "apply") );
-    m_boxmodel.addTuple( ButtonBoxTuple("Exit", "icon.gif", "exit") );
     
     m_context->setContextProperty("buttonBoxModel", &m_boxmodel);
 }

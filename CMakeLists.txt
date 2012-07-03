@@ -37,3 +37,5 @@ install(FILES buttonboxmodel.h
 
 install(FILES QWidgets/qmldir
         DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/qml/QWidgets)
+
+add_subdirectory(qml)

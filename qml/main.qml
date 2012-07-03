@@ -13,7 +13,7 @@ import QtQuick 1.1
 Rectangle
 {
     id: window
-    width: 1250
+    width: 1251 // this odd value is used to avoid blank space on the right of the button box
     height: 700
     color: "#DDDDDD"
     

@@ -15,6 +15,7 @@
 #include <qmlcombobox.h>
 #include "pluginregister.h"
 
+#include <solid/partitioner/utils/filesystem.h>
 #include <solid/partitioner/volumemanager.h>
 #include <solid/partitioner/actions/formatpartitionaction.h>
 
@@ -39,12 +40,17 @@ PartitionerView::PartitionerView(QObject* parent)
     m_view.setResizeMode(QDeclarativeView::SizeViewToRootObject);
     
     m_rootObject = m_view.rootObject();
+    m_formatDialog = m_rootObject->findChild< QObject* >("formatDialog");
     
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
     QObject::connect( m_manager, SIGNAL(deviceRemoved(QString)), this, SLOT(doDeviceRemoved(QString)) );
+    QObject::connect( m_manager, SIGNAL(diskChanged(QString)), this, SLOT(doDiskTreeChanged(QString)) );
     
     QObject::connect( m_rootObject, SIGNAL(selectedDiskChanged(QString)), this, SLOT(doSelectedDiskChanged(QString)) );
-    QObject::connect( m_rootObject, SIGNAL(actionButtonClicked(QString)), this, SLOT(doActionButtonClicked(QString)) );
+    QObject::connect( m_formatDialog,
+                      SIGNAL(closed(bool, QString, QString)),
+                      this,
+                      SLOT(formatDialogClosed(bool, QString, QString)) );
     
     m_view.show();
 }
@@ -131,9 +137,9 @@ void PartitionerView::doDeviceRemoved(QString device)
  * given that to register an action on a device you must select the device, the modified tree is always
  * the one currently displayed in the TreeView. So we update that one.
  */
-void PartitionerView::doDiskTreeChanged(VolumeTree newTree)
+void PartitionerView::doDiskTreeChanged(QString newTree)
 {
-    m_treeModel.setDisk(newTree);
+    setDiskTree(newTree);
 }
 
 /* If the user selected a new disk for displaying, changes the TreeView data. */
@@ -142,7 +148,31 @@ void PartitionerView::doSelectedDiskChanged(QString newDisk)
     setDiskTree(newDisk);
 }
 
-void PartitionerView::doActionButtonClicked(QString actionName)
+void PartitionerView::formatDialogClosed(bool accepted, QString filesystem, QString partition)
 {
-    qDebug() << actionName;
+    if (!accepted) {
+        return;
+    }
+    
+    QStringList flags;
+    QObject* flagsList = m_formatDialog->findChild< QObject* >("flagsList");
+    QList< QObject* > rowLayout = flagsList->findChildren< QObject* >("row");
+    
+    foreach (QObject* row, rowLayout) {
+        QObject* checkbox = row->findChild< QObject* >("flagCheckBox");
+        QObject* flag = row->findChild< QObject* >("flagName");
+        
+        if (checkbox->property("checked").toBool()) {
+            flags.append( flag->property("text").toString() );
+        }
+    }
+    
+    Utils::Filesystem fs(filesystem, flags);
+    m_manager->registerAction( new Actions::FormatPartitionAction(partition, fs) );
+    
+    /* TODO: show error dialog if registration failed */
+    
+    setActionList();
 }
+
+#include "partitionerview.moc"

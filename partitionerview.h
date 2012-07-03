@@ -37,19 +37,23 @@ public:
 public slots:
     void doDeviceAdded(VolumeTree);
     void doDeviceRemoved(QString);
-    void doDiskTreeChanged(VolumeTree);
+    void doDiskTreeChanged(QString);
     void doSelectedDiskChanged(QString);
-    void doActionButtonClicked(QString);
+    
+    void formatDialogClosed(bool, QString, QString);
     
 private:
     QDeclarativeView m_view;
     QDeclarativeContext* m_context;
-    QGraphicsObject* m_rootObject;
     QWidgetsPlugin plugin;
     
     /* Models */
     ButtonBoxModel m_boxmodel;
     DeviceTreeModel m_treeModel;
+    
+    /* QML component objects */
+    QGraphicsObject* m_rootObject;
+    QObject* m_formatDialog;
     
     VolumeManager* m_manager;
     QStringList m_diskList;

@@ -9,6 +9,7 @@
    version 2 of the License, or (at your option) any later version.
 */
 import QtQuick 1.1
+import "./dialogs" as Dialogs
 
 Rectangle
 {
@@ -24,6 +25,18 @@ Rectangle
     signal selectedDiskChanged (string newDisk)
     signal selectedDeviceChanged (string newDevice)
     signal actionButtonClicked (string actionName)
+    
+    property string currentSelectedDevice : "none"
+    
+    /* Many actions need to know the currently selected device. */
+    onSelectedDeviceChanged: {
+        window.currentSelectedDevice = newDevice;
+    }
+    
+    /* Opens the right dialog for the selected action */
+    onActionButtonClicked: {
+        if (actionName == "Format partition") formatDialog.show(currentSelectedDevice)
+    }
     
     Column {
         spacing: 10
@@ -47,5 +60,14 @@ Rectangle
         ActionList {
             id: actionList
         }
+    }
+    
+    /* Stores all the hidden dialogs, to be called when necessary */
+    Dialogs.FormatPartitionDialog {
+        id: formatDialog
+        objectName: "formatDialog"
+        
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
     }
 }

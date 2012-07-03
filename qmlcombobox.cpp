@@ -18,7 +18,7 @@ ComboBox::ComboBox(QGraphicsItem* parent)
     setWidget(widget);
     
     QObject::connect(widget, SIGNAL(currentIndexChanged(QString)), this, SIGNAL(currentTextChanged(QString)));
-    widget->addItem("test"); /* items are added here */
+    widget->addItem("vfat"); /* items are added here */
 }
 
 QString ComboBox::currentText() const

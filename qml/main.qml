@@ -14,7 +14,7 @@ import "./dialogs" as Dialogs
 Rectangle
 {
     id: window
-    width: 1251 // this odd value is used to avoid blank space on the right of the button box
+    width: 1300
     height: 700
     color: "#DDDDDD"
     

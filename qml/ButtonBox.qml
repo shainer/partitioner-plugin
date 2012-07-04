@@ -20,6 +20,8 @@ Rectangle
         color: "black"
     }
     
+    color: "#99CCCC"
+    
     Row
     {
         id: buttonrow

@@ -73,6 +73,7 @@ void PartitionerView::setButtonBox()
     m_boxmodel.addTuple( ButtonBoxTuple("Remove partition", "icon.gif") );
     m_boxmodel.addTuple( ButtonBoxTuple("Resize/move partition", "icon.gif") );
     m_boxmodel.addTuple( ButtonBoxTuple("Format partition", "icon.gif") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Modify partition", "icon.gif") );
     m_boxmodel.addTuple( ButtonBoxTuple("Create partition table", "icon.gif") );
     m_boxmodel.addTuple( ButtonBoxTuple("Remove partition table", "icon.gif") );
     m_boxmodel.addTuple( ButtonBoxTuple("Undo", "icon.gif") );
@@ -198,20 +199,20 @@ void PartitionerView::doSelectedDeviceChanged(QString devName)
     /* Disable/enable some action buttons according to the device type (and what you can do on it) */
     switch (device->deviceType()) {
         case DeviceModified::DiskDevice: {
-            disabled << "Create partition" << "Remove partition" << "Resize/move partition" << "Format partition";
+            disabled << "Create partition" << "Remove partition" << "Resize/move partition" << "Format partition" << "Modify partition";
             enabled << "Create partition table" << "Remove partition table";
             break;
         }
         
         case DeviceModified::PartitionDevice: {
             disabled << "Create partition" << "Create partition table" << "Remove partition table";
-            enabled << "Remove partition" << "Resize/move partition" << "Format partition";
+            enabled << "Remove partition" << "Resize/move partition" << "Format partition" << "Modify partition";
             break;
         }
         
         case DeviceModified::FreeSpaceDevice: {
             disabled << "Remove partition" << "Resize/move partition" << "Format partition" << "Create partition table"
-                     << "Remove partition table";
+                     << "Remove partition table" << "Modify partition";
             enabled << "Create partition";
             break;
         }

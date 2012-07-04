@@ -16,13 +16,17 @@
 #include "pluginregister.h"
 
 #include <solid/partitioner/utils/filesystem.h>
+#include <solid/partitioner/utils/partitioningerror.h>
 #include <solid/partitioner/volumemanager.h>
 #include <solid/partitioner/actions/formatpartitionaction.h>
+#include <solid/partitioner/devices/disk.h>
 
 #include <QDeclarativeContext>
 
 using namespace Solid::Partitioner;
 using namespace Solid::Partitioner::Actions;
+using namespace Solid::Partitioner::Utils;
+using namespace Solid::Partitioner::Devices;
 
 PartitionerView::PartitionerView(QObject* parent)
     : QObject(parent)
@@ -31,6 +35,7 @@ PartitionerView::PartitionerView(QObject* parent)
 {
     /* Sets all the models relative to the QML views */
     setButtonBox();
+    setGenericButtonsState();
     setDiskList();
     setActionList();
     setDiskTree( m_diskList.first() ); /* the disk initially displayed is the first in the list */
@@ -47,6 +52,7 @@ PartitionerView::PartitionerView(QObject* parent)
     QObject::connect( m_manager, SIGNAL(diskChanged(QString)), this, SLOT(doDiskTreeChanged(QString)) );
     
     QObject::connect( m_rootObject, SIGNAL(selectedDiskChanged(QString)), this, SLOT(doSelectedDiskChanged(QString)) );
+    QObject::connect( m_rootObject, SIGNAL(selectedDeviceChanged(QString)), this, SLOT(doSelectedDeviceChanged(QString)) );
     QObject::connect( m_formatDialog,
                       SIGNAL(closed(bool, QString, QString)),
                       this,
@@ -60,20 +66,48 @@ PartitionerView::~PartitionerView()
     m_context->deleteLater();
 }
 
-/* This sets the information needed to display the button box on top */
+/* This sets the information needed to display the button box on top. By default, all buttons are clickable. */
 void PartitionerView::setButtonBox()
 {
-    m_boxmodel.addTuple( ButtonBoxTuple("Create partition", "icon.gif", "createPartition") );
-    m_boxmodel.addTuple( ButtonBoxTuple("Remove partition", "icon.gif", "createPartition") );
-    m_boxmodel.addTuple( ButtonBoxTuple("Resize/move partition", "icon.gif", "createPartition") );
-    m_boxmodel.addTuple( ButtonBoxTuple("Format partition", "icon.gif", "formatPartition") );
-    m_boxmodel.addTuple( ButtonBoxTuple("Create partition table", "icon.gif", "createPartition") );
-    m_boxmodel.addTuple( ButtonBoxTuple("Remove partition table", "icon.gif", "createPartition") );
-    m_boxmodel.addTuple( ButtonBoxTuple("Undo", "icon.gif", "undo") );
-    m_boxmodel.addTuple( ButtonBoxTuple("Redo", "icon.gif", "redo") );
-    m_boxmodel.addTuple( ButtonBoxTuple("Apply actions", "icon.gif", "apply") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Create partition", "icon.gif") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Remove partition", "icon.gif") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Resize/move partition", "icon.gif") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Format partition", "icon.gif") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Create partition table", "icon.gif") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Remove partition table", "icon.gif") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Undo", "icon.gif") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Redo", "icon.gif") );
+    m_boxmodel.addTuple( ButtonBoxTuple("Apply actions", "icon.gif") );
     
     m_context->setContextProperty("buttonBoxModel", &m_boxmodel);
+}
+
+/* This sets the enabled state of all non action-related buttons: undo, redo and apply */
+void PartitionerView::setGenericButtonsState()
+{
+    QStringList disabled, enabled;
+    
+    if (m_manager->isUndoPossible()) {
+        enabled << "Undo";
+    } else {
+        disabled << "Undo";
+    }
+    
+    if (m_manager->isRedoPossible()) {
+        enabled << "Redo";
+    } else {
+        disabled << "Redo";
+    }
+    
+    /* Enable the button if there is at least one registered action to execute */
+    if (!m_manager->registeredActions().isEmpty()) {
+        enabled << "Apply actions";
+    } else {
+        disabled << "Apply actions";
+    }
+    
+    m_boxmodel.setButtonsEnabled(enabled, true);
+    m_boxmodel.setButtonsEnabled(disabled, false);
 }
 
 /* This sets the model for the list of registered actions */
@@ -100,6 +134,10 @@ void PartitionerView::setDiskTree(const QString& diskName)
 {
     VolumeTree diskTree = m_manager->diskTree( diskName );
     m_treeModel.setDisk(diskTree);
+
+    /* Sets the disk we just displayed as the selected device, as the user didn't have the chance to change it yet */
+    m_currentDisk = diskTree.disk()->name();
+    doSelectedDeviceChanged(m_currentDisk);
     
     m_context->setContextProperty("deviceTreeModel", &m_treeModel);
 }
@@ -145,7 +183,42 @@ void PartitionerView::doDiskTreeChanged(QString newTree)
 /* If the user selected a new disk for displaying, changes the TreeView data. */
 void PartitionerView::doSelectedDiskChanged(QString newDisk)
 {
+    m_currentDisk = newDisk;
     setDiskTree(newDisk);
+}
+
+/* This is called when the selected device changes, or when a new disk tree is being displayed */
+void PartitionerView::doSelectedDeviceChanged(QString devName)
+{
+    VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
+    DeviceModified* device = diskTree.searchDevice(devName);
+    
+    QStringList enabled, disabled;
+    
+    /* Disable/enable some action buttons according to the device type (and what you can do on it) */
+    switch (device->deviceType()) {
+        case DeviceModified::DiskDevice: {
+            disabled << "Create partition" << "Remove partition" << "Resize/move partition" << "Format partition";
+            enabled << "Create partition table" << "Remove partition table";
+            break;
+        }
+        
+        case DeviceModified::PartitionDevice: {
+            disabled << "Create partition" << "Create partition table" << "Remove partition table";
+            enabled << "Remove partition" << "Resize/move partition" << "Format partition";
+            break;
+        }
+        
+        case DeviceModified::FreeSpaceDevice: {
+            disabled << "Remove partition" << "Resize/move partition" << "Format partition" << "Create partition table"
+                     << "Remove partition table";
+            enabled << "Create partition";
+            break;
+        }
+    }
+    
+    m_boxmodel.setButtonsEnabled(enabled, true);
+    m_boxmodel.setButtonsEnabled(disabled, false);
 }
 
 void PartitionerView::formatDialogClosed(bool accepted, QString filesystem, QString partition)
@@ -167,12 +240,11 @@ void PartitionerView::formatDialogClosed(bool accepted, QString filesystem, QStr
         }
     }
     
-    Utils::Filesystem fs(filesystem, flags);
+    Filesystem fs(filesystem, flags);
     m_manager->registerAction( new Actions::FormatPartitionAction(partition, fs) );
     
-    /* TODO: show error dialog if registration failed */
-    
-    setActionList();
+    setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
+    setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
 }
 
 #include "partitionerview.moc"

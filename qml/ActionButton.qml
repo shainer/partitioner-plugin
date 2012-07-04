@@ -32,6 +32,8 @@ Rectangle {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
+        enabled: clickEnabled
+        
         onClicked: window.actionButtonClicked(actionButton.text)
     }
     
@@ -49,8 +51,8 @@ Rectangle {
         Text {
             id: buttonLabel
             anchors.horizontalCenter: parent.horizontalCenter
-            color: "black"
             text: actionButton.text
+            color: buttonTextColor
         }
     }
 }

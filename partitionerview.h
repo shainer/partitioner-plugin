@@ -39,6 +39,7 @@ public slots:
     void doDeviceRemoved(QString);
     void doDiskTreeChanged(QString);
     void doSelectedDiskChanged(QString);
+    void doSelectedDeviceChanged(QString);
     
     void formatDialogClosed(bool, QString, QString);
     
@@ -57,8 +58,10 @@ private:
     
     VolumeManager* m_manager;
     QStringList m_diskList;
+    QString m_currentDisk; /* the currently selected disk */
     
     void setButtonBox();
+    void setGenericButtonsState();
     void setDiskList();
     void setActionList();
     void setDiskTree(const QString &);

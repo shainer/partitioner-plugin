@@ -10,10 +10,11 @@
 */
 #include <buttonboxmodel.h>
 
-ButtonBoxTuple::ButtonBoxTuple(const QString& buttonName, const QString& iconName, const QString& dialogName)
+ButtonBoxTuple::ButtonBoxTuple(const QString& buttonName, const QString& iconName)
     : m_buttonName(buttonName)
     , m_iconName(iconName)
-    , m_dialogName(dialogName)
+    , m_textcolor("black")
+    , m_enabled(true)
 {}
 
 QString ButtonBoxTuple::buttonName() const
@@ -26,18 +27,37 @@ QString ButtonBoxTuple::iconName() const
     return m_iconName;
 }
 
-QString ButtonBoxTuple::dialogName() const
+bool ButtonBoxTuple::clickEnabled() const
 {
-    return m_dialogName;
+    return m_enabled;
+}
+
+QString ButtonBoxTuple::textColor() const
+{
+    return m_textcolor;
+}
+
+void ButtonBoxTuple::setClickEnabled(bool enabled)
+{
+    m_enabled = enabled;
+    
+    if (m_enabled) {
+        m_textcolor = "black";
+    } else {
+        m_textcolor = "gray";
+    }
 }
 
 ButtonBoxModel::ButtonBoxModel(QObject* parent)
     : QAbstractListModel(parent)
 {
     QHash<int, QByteArray> roles;
+    
     roles[ButtonName] = "buttonName";
     roles[IconName] = "iconName";
-    roles[DialogName] = "dialogName";
+    roles[ClickEnabled] = "clickEnabled";
+    roles[ButtonTextColor] = "buttonTextColor";
+    
     setRoleNames(roles);
 }
 
@@ -46,6 +66,17 @@ void ButtonBoxModel::addTuple(const ButtonBoxTuple& tuple)
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     tuples.append(tuple);
     endInsertRows();
+}
+
+void ButtonBoxModel::setButtonsEnabled(const QStringList& buttons, bool enabled)
+{
+    for (QList<ButtonBoxTuple>::iterator it = tuples.begin(); it != tuples.end(); it++) {
+        if (buttons.contains( it->buttonName() )) {
+            emit beginResetModel();
+            it->setClickEnabled(enabled);
+            emit endResetModel();
+        }
+    }
 }
 
 int ButtonBoxModel::rowCount(const QModelIndex& parent) const
@@ -68,8 +99,11 @@ QVariant ButtonBoxModel::data(const QModelIndex& index, int role) const
         case IconName:
             return tuple.iconName();
         
-        case DialogName:
-            return tuple.dialogName();
+        case ClickEnabled:
+            return tuple.clickEnabled();
+            
+        case ButtonTextColor:
+            return tuple.textColor();
     }
     
     return QVariant();

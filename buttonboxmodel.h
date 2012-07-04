@@ -12,20 +12,25 @@
 #define BUTTONBOXMODEL_H
 
 #include <QAbstractListModel>
+#include <QStringList>
 
 class ButtonBoxTuple
 {
 public:
-    ButtonBoxTuple(const QString &, const QString &, const QString &);
+    ButtonBoxTuple(const QString &, const QString &);
     
     QString buttonName() const;
     QString iconName() const;
-    QString dialogName() const; /* FIXME: probably this isn't useful */
+    bool clickEnabled() const; /* whether the button is clickable */
+    QString textColor() const; /* this depends on the previous property */
+    
+    void setClickEnabled(bool);
     
 private:
     QString m_buttonName;
     QString m_iconName;
-    QString m_dialogName;
+    QString m_textcolor;
+    bool m_enabled;
 };
 
 class ButtonBoxModel : public QAbstractListModel
@@ -36,12 +41,15 @@ public:
     enum ButtonBoxRoles {
         ButtonName = Qt::UserRole + 1,
         IconName,
-        DialogName
+        ClickEnabled,
+        ButtonTextColor
     };
     
     explicit ButtonBoxModel(QObject* parent = 0);
     
     void addTuple(const ButtonBoxTuple &);
+    void setButtonsEnabled(const QStringList &, bool); /* change the enabled property of some buttons */
+    
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex &, int role = Qt::DisplayRole) const;
     

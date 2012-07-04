@@ -74,7 +74,7 @@ Rectangle {
                     font.family: "Helvetica"
                     font.pointSize: 11
                     text: deviceDescription 
-                    width: deviceTree.width / 2
+                    width: deviceTree.width / 3
                 }
                 
                 Text {
@@ -83,7 +83,7 @@ Rectangle {
                     font.pointSize: 11
                     text: deviceMountPoint
                     
-                    width: (deviceTree.width) / 5
+                    width: (deviceTree.width) / 4
                 }
                 
                 /*
@@ -100,6 +100,16 @@ Rectangle {
                              20
                            else if (spacer1.width == 40)
                              0
+                }
+                
+                
+                Text {
+                    id: devlabel
+                    font.family: "Helvetica"
+                    font.pointSize: 11
+                    text: deviceLabel
+                    
+                    width: deviceTree.width / 7
                 }
                 
                 Text {

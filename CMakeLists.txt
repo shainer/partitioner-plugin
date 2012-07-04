@@ -38,6 +38,7 @@ install(FILES buttonboxmodel.h
               partitionerview.h
               qmlcombobox.h
               pluginregister.h
+              buttonnames.h
         DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/include)
 
 install(FILES QWidgets/qmldir

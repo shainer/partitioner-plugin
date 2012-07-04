@@ -1,3 +1,14 @@
+/*
+ * Dialog to get information for formatting a partition.
+
+   Copyright (C) 2012 Lisa Vitolo <shainer@chakra-project.org>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or (at your option) any later version.
+*/
+
 import QtQuick 1.0
 import ComboBox 1.0
 
@@ -32,6 +43,7 @@ Rectangle
     ]
     state: "invisible"
     
+    /* Adds a nice animation for when the dialog is shown or hidden */
     transitions: [
         Transition {
             from: "invisible"
@@ -48,7 +60,9 @@ Rectangle
         }
     ]
     
-    property string partition : "none"
+    property string partition : "none" /* this property must hold the partition considered for formatting */
+    
+    /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
     signal closed(bool accepted, string filesystem, string partition)
     
     function show(partition) {
@@ -73,6 +87,7 @@ Rectangle
         }
     }
     
+    /* TODO: for now it holds dummy data. I'll connect a model later. */
     ComboBox {
         anchors.right: parent.right
         anchors.top: parent.top
@@ -81,6 +96,7 @@ Rectangle
         id: combobox
     }
     
+    /* TODO: see before. The displayed flags should change according to the current filesystem. */
     FlagsList {
         id: flagsList
         objectName: "flagsList"

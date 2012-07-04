@@ -22,7 +22,8 @@ class DeviceTreeModel : public QAbstractListModel
     
 public:
     enum DeviceTreeRoles {
-        DeviceName = Qt::UserRole + 1,
+        DeviceDescription = Qt::UserRole + 1,
+        DeviceName,
         DeviceType,
         DeviceSize,
         DeviceLabel,

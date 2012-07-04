@@ -73,8 +73,7 @@ Rectangle {
                     id: devname
                     font.family: "Helvetica"
                     font.pointSize: 11
-                    text: deviceName
-                    
+                    text: deviceDescription 
                     width: deviceTree.width / 2
                 }
                 

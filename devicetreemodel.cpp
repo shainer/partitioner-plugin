@@ -20,6 +20,7 @@ DeviceTreeModel::DeviceTreeModel(const VolumeTree& disk, QObject* parent)
 {
     QHash<int, QByteArray> roles;
     
+    roles[DeviceDescription] = "deviceDescription";
     roles[DeviceName] = "deviceName";
     roles[DeviceType] = "deviceType";
     roles[DeviceSize] = "deviceSize";
@@ -57,8 +58,11 @@ QVariant DeviceTreeModel::data(const QModelIndex& index, int role) const
     DeviceModified* device = m_disk.allDevices().at( index.row() );
     
     switch (role) {
-        case DeviceName:
+        case DeviceDescription:
             return device->description();
+            
+        case DeviceName:
+            return device->name();
             
         case DeviceType:
             return device->deviceType();

@@ -28,6 +28,7 @@ Rectangle
     
     Column {
         spacing: 10
+        objectName: "mainColumn"
         
         ButtonBox {
             id: buttonbox
@@ -35,6 +36,7 @@ Rectangle
         
         Row {
             spacing: 7
+            objectName: "mainRow"
             
             DiskList {
                 id: diskList

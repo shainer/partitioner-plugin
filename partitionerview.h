@@ -61,6 +61,7 @@ private:
     
     /* QML component objects */
     QGraphicsObject* m_rootObject;
+    QObject* m_treeView;
     QHash< QString, QObject* > m_dialogs;
     
     VolumeManager* m_manager;
@@ -73,6 +74,9 @@ private:
     void setDiskList();
     void setActionList();
     void setDiskTree(const QString &);
+    
+    QObject* getTreeView();
+    void afterClosedDialog();
 };
 
 #endif

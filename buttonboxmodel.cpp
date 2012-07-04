@@ -79,8 +79,18 @@ void ButtonBoxModel::setButtonsEnabled(const QStringList& buttons, bool enabled)
     }
 }
 
+void ButtonBoxModel::disableAllButtons()
+{
+    for (QList<ButtonBoxTuple>::iterator it = tuples.begin(); it != tuples.end(); it++) {
+        emit beginResetModel();
+        it->setClickEnabled(false);
+        emit endResetModel();
+    }
+}
+
 int ButtonBoxModel::rowCount(const QModelIndex& parent) const
 {
+    Q_UNUSED(parent)
     return tuples.count();
 }
 

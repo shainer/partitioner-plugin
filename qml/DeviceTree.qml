@@ -12,6 +12,8 @@ import QtQuick 1.1
 
 Rectangle {
     id: deviceTree
+    objectName: "deviceTree"
+    
     width: (window.width * 2) / 3
     height: (window.height * 4) / 7
     
@@ -22,6 +24,7 @@ Rectangle {
     
     ListView {
         id: deviceTreeView
+        objectName: "deviceTreeView"
         
         model: deviceTreeModel
         highlight: SelectionRectangle {}
@@ -29,6 +32,8 @@ Rectangle {
         
         anchors.fill: parent
         anchors.margins: 6
+        
+        onCurrentItemChanged: window.selectedDeviceChanged(model[currentIndex].deviceName)
     }
     
     Component {

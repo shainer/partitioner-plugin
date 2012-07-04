@@ -57,6 +57,7 @@ PartitionerView::PartitionerView(QObject* parent)
     
     m_rootObject = m_view.rootObject();
     QObject* dialogSet = m_rootObject->findChild< QObject* >("dialogSet");
+    m_treeView = getTreeView();
     
     /* Add all dialog objects for later use */
     m_dialogs.insert(FORMAT_PARTITION, dialogSet->findChild< QObject* >("formatDialog"));
@@ -86,6 +87,15 @@ PartitionerView::PartitionerView(QObject* parent)
 PartitionerView::~PartitionerView()
 {
     m_context->deleteLater();
+}
+
+/* I'm deeply sorry for this. */
+QObject* PartitionerView::getTreeView()
+{
+    QObject* column = m_rootObject->findChild< QObject* >("mainColumn");
+    QObject* row = column->findChild< QObject* >("mainRow");
+    QObject* deviceTree = row->findChild< QObject* >("deviceTree");
+    return deviceTree->findChild< QObject* >("deviceTreeView");
 }
 
 /* This sets the information needed to display the button box on top. By default, all buttons are clickable. */
@@ -248,6 +258,8 @@ void PartitionerView::doSelectedDeviceChanged(QString devName)
 /* When an action button is clicked, shows the right dialog and sets its initial information when required */
 void PartitionerView::doActionButtonClicked(QString actionName)
 {
+    m_boxmodel.disableAllButtons();
+    
     QObject* dialog = m_dialogs[actionName];
     VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
     DeviceModified* device = diskTree.searchDevice(m_currentDevice);
@@ -267,6 +279,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     }
     else if (actionName == REMOVE_PARTITION) { /* this doesn't need a dialog, so we directly call the "dialog closed slot" */
         removePartitionDialogClosed(m_currentDevice);
+        return;
     }
     else if (actionName == CREATE_PARTITION_TABLE) {
         dialog->setProperty("currentScheme", diskTree.disk()->partitionTableScheme());
@@ -299,9 +312,7 @@ void PartitionerView::formatDialogClosed(bool accepted, QString filesystem, QStr
     
     Filesystem fs(filesystem, flags);
     m_manager->registerAction( new Actions::FormatPartitionAction(partition, fs) );
-    
-    setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
-    setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
+    afterClosedDialog();
 }
 
 void PartitionerView::modifyDialogClosed(bool accepted, QString label, QString partition)
@@ -324,17 +335,13 @@ void PartitionerView::modifyDialogClosed(bool accepted, QString label, QString p
     }
     
     m_manager->registerAction( new Actions::ModifyPartitionAction(partition, label, flags) );
-    
-    setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
-    setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
+    afterClosedDialog();
 }
 
 void PartitionerView::removePartitionDialogClosed(QString partition)
 {
     m_manager->registerAction( new Actions::RemovePartitionAction(partition) );
-    
-    setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
-    setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
+    afterClosedDialog();
 }
 
 void PartitionerView::createTableDialogClosed(bool accepted, QString scheme, QString disk)
@@ -345,9 +352,7 @@ void PartitionerView::createTableDialogClosed(bool accepted, QString scheme, QSt
     
     PartitionTableScheme schemeEnum = (scheme == "gpt") ? GPTScheme : MBRScheme;
     m_manager->registerAction( new Actions::CreatePartitionTableAction(disk, schemeEnum) );
-    
-    setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
-    setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
+    afterClosedDialog();
 }
 
 void PartitionerView::removeTableDialogClosed(bool accepted, QString disk)
@@ -357,6 +362,12 @@ void PartitionerView::removeTableDialogClosed(bool accepted, QString disk)
     }
     
     m_manager->registerAction( new Actions::RemovePartitionTableAction(disk) );
+    afterClosedDialog();
+}
+
+void PartitionerView::afterClosedDialog()
+{
+    m_treeView->setProperty("currentIndex", 0);
     
     setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
     setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */

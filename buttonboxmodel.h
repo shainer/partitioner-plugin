@@ -49,6 +49,7 @@ public:
     
     void addTuple(const ButtonBoxTuple &);
     void setButtonsEnabled(const QStringList &, bool); /* change the enabled property of some buttons */
+    void disableAllButtons();
     
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex &, int role = Qt::DisplayRole) const;

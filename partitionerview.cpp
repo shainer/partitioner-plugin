@@ -15,6 +15,8 @@
 #include <pluginregister.h>
 #include <buttonnames.h>
 
+#include <solid/partitioner/utils/partitioner_enums.h>
+#include <solid/partitioner/actions/createpartitiontableaction.h>
 #include <solid/partitioner/actions/removepartitionaction.h>
 #include <solid/partitioner/actions/modifypartitionaction.h>
 #include <solid/partitioner/utils/partitiontableutils.h>
@@ -58,6 +60,7 @@ PartitionerView::PartitionerView(QObject* parent)
     /* Add all dialog objects for later use */
     m_dialogs.insert(FORMAT_PARTITION, dialogSet->findChild< QObject* >("formatDialog"));
     m_dialogs.insert(MODIFY_PARTITION, dialogSet->findChild< QObject* >("modifyDialog"));
+    m_dialogs.insert(CREATE_PARTITION_TABLE, dialogSet->findChild< QObject* >("createTableDialog"));
     
     /* Receive changes from Solid */
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
@@ -71,7 +74,8 @@ PartitionerView::PartitionerView(QObject* parent)
     
     /* Operations to be performed when the dialog is closed (i.e. register the correspondent action, if necessary) */
     QObject::connect( m_dialogs[FORMAT_PARTITION], SIGNAL(closed(bool, QString, QString)), SLOT(formatDialogClosed(bool, QString, QString)) );
-    QObject::connect( m_dialogs[MODIFY_PARTITION], SIGNAL(closed(bool, QString, QString)), SLOT(modifyDialogClosed(bool,QString,QString)) );
+    QObject::connect( m_dialogs[MODIFY_PARTITION], SIGNAL(closed(bool, QString, QString)), SLOT(modifyDialogClosed(bool, QString, QString)) );
+    QObject::connect( m_dialogs[CREATE_PARTITION_TABLE], SIGNAL(closed(bool, QString, QString)), SLOT(createTableDialogClosed(bool, QString, QString)));
     
     m_view.show();
 }
@@ -238,7 +242,7 @@ void PartitionerView::doSelectedDeviceChanged(QString devName)
     m_boxmodel.setButtonsEnabled(disabled, false);
 }
 
-/* When an action button is clicked, show the right dialog setting its initial information */
+/* When an action button is clicked, shows the right dialog and sets its initial information when required */
 void PartitionerView::doActionButtonClicked(QString actionName)
 {
     QObject* dialog = m_dialogs[actionName];
@@ -260,6 +264,9 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     }
     else if (actionName == REMOVE_PARTITION) { /* this doesn't need a dialog, so we directly call the "dialog closed slot" */
         removePartitionDialogClosed(m_currentDevice);
+    }
+    else if (actionName == CREATE_PARTITION_TABLE) {
+        dialog->setProperty("currentScheme", diskTree.disk()->partitionTableScheme());
     }
     
     QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, m_currentDevice));
@@ -319,6 +326,19 @@ void PartitionerView::modifyDialogClosed(bool accepted, QString label, QString p
 void PartitionerView::removePartitionDialogClosed(QString partition)
 {
     m_manager->registerAction( new Actions::RemovePartitionAction(partition) );
+    
+    setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
+    setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
+}
+
+void PartitionerView::createTableDialogClosed(bool accepted, QString scheme, QString disk)
+{
+    if (!accepted || scheme.isEmpty()) {
+        return;
+    }
+    
+    PartitionTableScheme schemeEnum = (scheme == "gpt") ? GPTScheme : MBRScheme;
+    m_manager->registerAction( new Actions::CreatePartitionTableAction(disk, schemeEnum) );
     
     setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
     setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */

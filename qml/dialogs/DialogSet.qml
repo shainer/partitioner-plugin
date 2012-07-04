@@ -60,4 +60,5 @@ Rectangle {
     
     FormatPartitionDialog {}
     ModifyPartitionDialog {}
+    CreatePartitionTableDialog {}
 }

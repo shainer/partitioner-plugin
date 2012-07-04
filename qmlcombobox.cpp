@@ -1,5 +1,5 @@
 /*
- * Defines a ComboBox widget to be used in QML.
+ * Defines a ComboBox widget to be displayed in QML.
 
    Copyright (C) 2012 Lisa Vitolo <shainer@chakra-project.org>
 
@@ -18,7 +18,6 @@ ComboBox::ComboBox(QGraphicsItem* parent)
     setWidget(widget);
     
     QObject::connect(widget, SIGNAL(currentIndexChanged(QString)), this, SIGNAL(currentTextChanged(QString)));
-    widget->addItem("vfat"); /* items are added here */
 }
 
 QString ComboBox::currentText() const
@@ -26,3 +25,32 @@ QString ComboBox::currentText() const
     return widget->currentText();
 }
 
+int ComboBox::width() const
+{
+    return widget->width();
+}
+
+void ComboBox::setWidth(int w)
+{
+    widget->setMinimumWidth(w);
+}
+
+QStringList ComboBox::items() const
+{
+    QStringList textes;
+    
+    for (int i = 0; i < widget->count(); i++) {
+        textes.append( widget->itemText(i) );
+    }
+    
+    return textes;
+}
+
+void ComboBox::setItems(const QStringList& items)
+{
+    while (widget->count() > 0) {
+        widget->removeItem(0);
+    }
+    
+    widget->addItems(items);
+}

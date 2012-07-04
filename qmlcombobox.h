@@ -1,5 +1,5 @@
 /*
- * Defines a ComboBox widget to be used in QML.
+ * Defines a ComboBox widget to be displayed in QML.
 
    Copyright (C) 2012 Lisa Vitolo <shainer@chakra-project.org>
 
@@ -20,11 +20,19 @@ class ComboBox : public QGraphicsProxyWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString currentText READ currentText NOTIFY currentTextChanged)
+    Q_PROPERTY(int width READ width WRITE setWidth)
+    Q_PROPERTY(QStringList items READ items WRITE setItems)
     
 public:
     ComboBox(QGraphicsItem* parent = 0);
     
     QString currentText() const;
+    
+    int width() const;
+    void setWidth(int);
+    
+    QStringList items() const;
+    void setItems(const QStringList &);
     
 signals:
     void currentTextChanged(QString);

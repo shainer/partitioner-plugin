@@ -253,7 +253,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     DeviceModified* device = diskTree.searchDevice(m_currentDevice);
     
     m_flagsModel.reset();
-    
+
     if (actionName == MODIFY_PARTITION) {
         Partition* partition = dynamic_cast< Partition* >(device);
         dialog->setProperty("currentLabel", partition->label());
@@ -270,6 +270,9 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     }
     else if (actionName == CREATE_PARTITION_TABLE) {
         dialog->setProperty("currentScheme", diskTree.disk()->partitionTableScheme());
+    }
+    else if (actionName == FORMAT_PARTITION) { /* FIXME: do this properly */
+        dialog->setProperty("supportedFilesystems", QStringList() << "ntfs" << "vfat" << "unformatted");
     }
     
     QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, m_currentDevice));

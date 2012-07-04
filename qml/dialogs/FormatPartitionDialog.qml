@@ -24,6 +24,7 @@ Rectangle
     opacity: 0
     
     property string partition /* this property must hold the partition considered for formatting */
+    property variant supportedFilesystems
     
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
     signal closed(bool accepted, string filesystem, string partition)
@@ -32,6 +33,9 @@ Rectangle
         formatDialog.partition = partition;
         dialogSet.state = "visible";
         formatDialog.opacity = 1;
+        
+        /* I need to set this here because the property supportedFilesystems has undefined type before explicit setting */
+        combobox.items = supportedFilesystems;
         
         parent.width = 250;
         parent.height = 150;
@@ -60,6 +64,8 @@ Rectangle
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: 10
+        
+        width: 100
         
         id: combobox
         objectName: "fsComboBox"

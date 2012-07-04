@@ -40,6 +40,7 @@ public slots:
     void doDiskTreeChanged(QString);
     void doSelectedDiskChanged(QString);
     void doSelectedDeviceChanged(QString);
+    void doActionButtonClicked(QString);
     
     void formatDialogClosed(bool, QString, QString);
     
@@ -54,11 +55,12 @@ private:
     
     /* QML component objects */
     QGraphicsObject* m_rootObject;
-    QObject* m_formatDialog;
+    QHash< QString, QObject* > m_dialogs;
     
     VolumeManager* m_manager;
     QStringList m_diskList;
     QString m_currentDisk; /* the currently selected disk */
+    QString m_currentDevice;
     
     void setButtonBox();
     void setGenericButtonsState();

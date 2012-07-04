@@ -32,12 +32,7 @@ Rectangle
     onSelectedDeviceChanged: {
         window.currentSelectedDevice = newDevice;
     }
-    
-    /* Opens the right dialog for the selected action */
-    onActionButtonClicked: {
-        if (actionName == "Format partition") formatDialog.show(currentSelectedDevice)
-    }
-    
+
     Column {
         spacing: 10
         

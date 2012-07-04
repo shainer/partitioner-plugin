@@ -49,6 +49,8 @@ Rectangle
     
     Text {
         anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.margins: 10
         
         text: "Choose a new partition table scheme for this disk.\n!Warning! this will delete any partition or data."

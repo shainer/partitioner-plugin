@@ -13,55 +13,14 @@ import QtQuick 1.0
 Rectangle {
     id: modifyDialog
     objectName: "modifyDialog"
-    
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.horizontalCenter: parent.horizontalCenter
-    
-    property string currentLabel
-    
-    width: 250
-    height: 150
-    color: "#DDDDDD"
+     
+    anchors.fill: parent
+    color: parent.color
+    width: parent.width
+    height: parent.height
     opacity: 0
-    
-    smooth: true
-    radius: 2
-    
-    border {
-        color: "black"
-        width: 2
-    }
-    
-    states: [
-        State {
-            name: "visible"
-            PropertyChanges { target: modifyDialog; opacity: 1 }
-        },
-        
-        State {
-            name: "invisible"
-            PropertyChanges { target: modifyDialog; opacity: 0 }
-        }
-    ]
-    state: "invisible"
-    
-    /* Adds a nice animation for when the dialog is shown or hidden */
-    transitions: [
-        Transition {
-            from: "invisible"
-            to: "visible"
-            
-            PropertyAnimation { target: modifyDialog; property: "opacity"; to: 1; duration: 150 }
-        },
-        
-        Transition {
-            from: "visible"
-            to: "invisible"
-            
-            PropertyAnimation { target: modifyDialog; property: "opacity"; to: 0; duration: 150 }
-        }
-    ]
-    
+
+    property string currentLabel
     property string partition /* this property must hold the partition to be modified */
     
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
@@ -69,11 +28,16 @@ Rectangle {
     
     function show(partition) {
         modifyDialog.partition = partition;
-        modifyDialog.state = "visible";
+        dialogSet.state = "visible";
+        modifyDialog.opacity = 1;
+        
+        parent.width = 250;
+        parent.height = 150;
     }
     
     function hide() {
-        modifyDialog.state = "invisible";
+        dialogSet.state = "invisible";
+        modifyDialog.opacity = 0;
     }
     
     Text {

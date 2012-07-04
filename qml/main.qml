@@ -58,6 +58,5 @@ Rectangle
     }
     
     /* Stores all the hidden dialogs, to be called when necessary */
-    Dialogs.FormatPartitionDialog {}
-    Dialogs.ModifyPartitionDialog {}
+    Dialogs.DialogSet {}
 }

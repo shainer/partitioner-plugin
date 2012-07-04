@@ -17,51 +17,11 @@ Rectangle
     id: formatDialog
     objectName: "formatDialog"
     
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.horizontalCenter: parent.horizontalCenter
-    
-    width: 260
-    height: 150
-    color: "#DDDDDD"
+    anchors.fill: parent
+    color: parent.color
+    width: parent.width
+    height: parent.height
     opacity: 0
-    
-    smooth: true
-    radius: 2
-    
-    border {
-        color: "black"
-        width: 2
-    }
-    
-    states: [
-        State {
-            name: "visible"
-            PropertyChanges { target: formatDialog; opacity: 1 }
-        },
-        
-        State {
-            name: "invisible"
-            PropertyChanges { target: formatDialog; opacity: 0 }
-        }
-    ]
-    state: "invisible"
-    
-    /* Adds a nice animation for when the dialog is shown or hidden */
-    transitions: [
-        Transition {
-            from: "invisible"
-            to: "visible"
-            
-            PropertyAnimation { target: formatDialog; property: "opacity"; to: 1; duration: 150 }
-        },
-        
-        Transition {
-            from: "visible"
-            to: "invisible"
-            
-            PropertyAnimation { target: formatDialog; property: "opacity"; to: 0; duration: 150 }
-        }
-    ]
     
     property string partition /* this property must hold the partition considered for formatting */
     
@@ -70,11 +30,16 @@ Rectangle
     
     function show(partition) {
         formatDialog.partition = partition;
-        formatDialog.state = "visible";
+        dialogSet.state = "visible";
+        formatDialog.opacity = 1;
+        
+        parent.width = 250;
+        parent.height = 150;
     }
     
     function hide() {
-        formatDialog.state = "invisible";
+        dialogSet.state = "invisible";
+        formatDialog.opacity = 0;
     }
     
     Text {

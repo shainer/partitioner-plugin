@@ -52,10 +52,11 @@ PartitionerView::PartitionerView(QObject* parent)
     m_view.setResizeMode(QDeclarativeView::SizeViewToRootObject);
     
     m_rootObject = m_view.rootObject();
+    QObject* dialogSet = m_rootObject->findChild< QObject* >("dialogSet");
     
     /* Add all dialog objects for later use */
-    m_dialogs.insert(FORMAT_PARTITION, m_rootObject->findChild< QObject* >("formatDialog"));
-    m_dialogs.insert(MODIFY_PARTITION, m_rootObject->findChild< QObject* >("modifyDialog"));
+    m_dialogs.insert(FORMAT_PARTITION, dialogSet->findChild< QObject* >("formatDialog"));
+    m_dialogs.insert(MODIFY_PARTITION, dialogSet->findChild< QObject* >("modifyDialog"));
     
     /* Receive changes from Solid */
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
@@ -243,11 +244,12 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
     DeviceModified* device = diskTree.searchDevice(m_currentDevice);
     
+    m_flagsModel.reset();
+    
     if (actionName == MODIFY_PARTITION) {
         Partition* partition = dynamic_cast< Partition* >(device);
         dialog->setProperty("currentLabel", partition->label());
         
-        m_flagsModel.reset(); /* resets old flags */
         QStringList partitionFlags = partition->flags();
         QStringList schemeFlags = PartitionTableUtils::instance()->supportedFlags( partition->partitionTableScheme() );
         

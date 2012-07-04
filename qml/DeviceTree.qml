@@ -24,8 +24,8 @@ Rectangle {
         id: deviceTreeView
         
         model: deviceTreeModel
-        delegate: deviceTreeDelegate
         highlight: SelectionRectangle {}
+        delegate: deviceTreeDelegate
         
         anchors.fill: parent
         anchors.margins: 6
@@ -36,6 +36,7 @@ Rectangle {
         
         Rectangle {
             border.color: "#CCCCCC"
+            color: "#00000000"
             width: deviceTree.width
             height: 30
             
@@ -57,7 +58,7 @@ Rectangle {
                  */
                 Rectangle {
                     id: spacer1
-                    color: "white"
+                    color: "#00000000"
                     
                     height: 20
                     width: if (partitionType == 2)
@@ -91,7 +92,7 @@ Rectangle {
                  */
                 Rectangle {
                     id: spacer2
-                    color: "white"
+                    color: "#00000000"
                     
                     height: 20
                     width: if (spacer1.width == 0)

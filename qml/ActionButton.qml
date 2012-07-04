@@ -18,7 +18,7 @@ Rectangle {
     property string iconPath: "none"
     
     height: buttonbox.height
-    width: buttonLabel.width + 35
+    width: buttonLabel.width + 37
     
     border {
         width: 2

@@ -2,6 +2,7 @@ import QtQuick 1.1
 
 Item {
     id: flagsList
+    objectName: "flagsList"
     
     Column {
         
@@ -12,14 +13,6 @@ Item {
             model: flagsModel
             delegate: flagsDelegate
         }
-    }
-    
-    /* DUMMY MODEL */
-    ListModel {
-        id: flagsModel
-        
-        ListElement { name: "boot"; index: 0 }
-        ListElement { name: "required"; index: 1 }
     }
     
     Component {
@@ -34,16 +27,16 @@ Item {
             CheckBox {
                 id: checkbox
                 objectName: "flagCheckBox"
-
+                
+                initialChecked: flagChecked
                 width: 20
                 height: 20
             }
             
             Text {
-                id: flagName
                 objectName: "flagName"
                 
-                text: name
+                text: flagName
                 font.pointSize: 10
             }
         }

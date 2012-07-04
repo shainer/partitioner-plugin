@@ -20,6 +20,7 @@ Item {
     property color backgroundColor: "#fff";
 
     signal clicked
+    property bool initialChecked /* initial state of the checkbox */
     property alias pressed: behavior.pressed
     property alias checked: behavior.checked
 
@@ -45,7 +46,9 @@ Item {
         id: behavior
         anchors.fill: parent
         onCheckedChanged: setCheckItemOpacity()
+        
         checkable:true
+        checked: initialChecked
     }
 
     DefaultStyles.CheckBoxStyle { id: defaultStyle }

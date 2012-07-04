@@ -20,6 +20,7 @@
 #include <buttonboxmodel.h>
 #include <devicetreemodel.h>
 #include "pluginregister.h"
+#include "flagsmodel.h"
 
 #include <solid/partitioner/volumetree.h>
 #include <solid/partitioner/volumemanager.h>
@@ -43,6 +44,7 @@ public slots:
     void doActionButtonClicked(QString);
     
     void formatDialogClosed(bool, QString, QString);
+    void modifyDialogClosed(bool, QString, QString);
     
 private:
     QDeclarativeView m_view;
@@ -52,6 +54,7 @@ private:
     /* Models */
     ButtonBoxModel m_boxmodel;
     DeviceTreeModel m_treeModel;
+    FlagsModel m_flagsModel;
     
     /* QML component objects */
     QGraphicsObject* m_rootObject;

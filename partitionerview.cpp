@@ -15,11 +15,14 @@
 #include <pluginregister.h>
 #include <buttonnames.h>
 
+#include <solid/partitioner/actions/modifypartitionaction.h>
+#include <solid/partitioner/utils/partitiontableutils.h>
 #include <solid/partitioner/utils/filesystem.h>
 #include <solid/partitioner/utils/partitioningerror.h>
 #include <solid/partitioner/volumemanager.h>
 #include <solid/partitioner/actions/formatpartitionaction.h>
 #include <solid/partitioner/devices/disk.h>
+#include <solid/partitioner/devices/partition.h>
 
 #include <QDeclarativeContext>
 #include <qdeclarative.h>
@@ -41,24 +44,32 @@ PartitionerView::PartitionerView(QObject* parent)
     setActionList();
     setDiskTree( m_diskList.first() ); /* the disk initially displayed is the first in the list */
     
+    /* This model is initial empty, but it's okay because it won't be displayed right now. */
+    m_context->setContextProperty("flagsModel", &m_flagsModel);
+    
     plugin.registerTypes("ComboBox");
     m_view.setSource(QUrl::fromLocalFile("../../install/plugin/qml/main.qml")); // TODO: change this
     m_view.setResizeMode(QDeclarativeView::SizeViewToRootObject);
     
     m_rootObject = m_view.rootObject();
-    m_dialogs.insert(FORMAT_PARTITION, m_rootObject->findChild< QObject* >("formatDialog"));
     
+    /* Add all dialog objects for later use */
+    m_dialogs.insert(FORMAT_PARTITION, m_rootObject->findChild< QObject* >("formatDialog"));
+    m_dialogs.insert(MODIFY_PARTITION, m_rootObject->findChild< QObject* >("modifyDialog"));
+    
+    /* Receive changes from Solid */
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
     QObject::connect( m_manager, SIGNAL(deviceRemoved(QString)), this, SLOT(doDeviceRemoved(QString)) );
     QObject::connect( m_manager, SIGNAL(diskChanged(QString)), this, SLOT(doDiskTreeChanged(QString)) );
     
+    /* Receive changes from the QML interface */
     QObject::connect( m_rootObject, SIGNAL(selectedDiskChanged(QString)), this, SLOT(doSelectedDiskChanged(QString)) );
     QObject::connect( m_rootObject, SIGNAL(selectedDeviceChanged(QString)), this, SLOT(doSelectedDeviceChanged(QString)) );
     QObject::connect( m_rootObject, SIGNAL(actionButtonClicked(QString)), this, SLOT(doActionButtonClicked(QString)) );
-    QObject::connect( m_dialogs[FORMAT_PARTITION],
-                      SIGNAL(closed(bool, QString, QString)),
-                      this,
-                      SLOT(formatDialogClosed(bool, QString, QString)) );
+    
+    /* Operations to be performed when the dialog is closed (i.e. register the correspondent action, if necessary) */
+    QObject::connect( m_dialogs[FORMAT_PARTITION], SIGNAL(closed(bool, QString, QString)), SLOT(formatDialogClosed(bool, QString, QString)) );
+    QObject::connect( m_dialogs[MODIFY_PARTITION], SIGNAL(closed(bool, QString, QString)), SLOT(modifyDialogClosed(bool,QString,QString)) );
     
     m_view.show();
 }
@@ -225,9 +236,26 @@ void PartitionerView::doSelectedDeviceChanged(QString devName)
     m_boxmodel.setButtonsEnabled(disabled, false);
 }
 
+/* When an action button is clicked, show the right dialog setting its initial information */
 void PartitionerView::doActionButtonClicked(QString actionName)
 {
     QObject* dialog = m_dialogs[actionName];
+    VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
+    DeviceModified* device = diskTree.searchDevice(m_currentDevice);
+    
+    if (actionName == MODIFY_PARTITION) {
+        Partition* partition = dynamic_cast< Partition* >(device);
+        dialog->setProperty("currentLabel", partition->label());
+        
+        m_flagsModel.reset(); /* resets old flags */
+        QStringList partitionFlags = partition->flags();
+        QStringList schemeFlags = PartitionTableUtils::instance()->supportedFlags( partition->partitionTableScheme() );
+        
+        foreach (const QString& schemeFlag, schemeFlags) {
+            m_flagsModel.addFlag( schemeFlag, partitionFlags.contains(schemeFlag) );
+        }
+    }
+    
     QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, m_currentDevice));
 }
 
@@ -252,6 +280,31 @@ void PartitionerView::formatDialogClosed(bool accepted, QString filesystem, QStr
     
     Filesystem fs(filesystem, flags);
     m_manager->registerAction( new Actions::FormatPartitionAction(partition, fs) );
+    
+    setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
+    setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
+}
+
+void PartitionerView::modifyDialogClosed(bool accepted, QString label, QString partition)
+{
+    if (!accepted) {
+        return;
+    }
+    
+    QStringList flags;
+    QObject* flagsList = m_dialogs[MODIFY_PARTITION]->findChild< QObject* >("flagsList");
+    QList< QObject* > rowLayout = flagsList->findChildren< QObject* >("row");
+    
+    foreach (QObject* row, rowLayout) {
+        QObject* checkbox = row->findChild< QObject* >("flagCheckBox");
+        QObject* flag = row->findChild< QObject* >("flagName");
+        
+        if (checkbox->property("checked").toBool()) {
+            flags.append( flag->property("text").toString() );
+        }
+    }
+    
+    m_manager->registerAction( new Actions::ModifyPartitionAction(partition, label, flags) );
     
     setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
     setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */

@@ -18,8 +18,10 @@ include_directories( ${QT_INCLUDES}
 set(test_SRCS
     main.cpp
     partitionerview.cpp
+
     buttonboxmodel.cpp
     devicetreemodel.cpp
+    flagsmodel.cpp
 
     qmlcombobox.cpp
     pluginregister.cpp
@@ -35,6 +37,8 @@ target_link_libraries(test ${CMAKE_INSTALL_PREFIX}/lib/libsolid.so
 
 install(FILES buttonboxmodel.h
               devicetreemodel.h
+              flagsmodel.h
+
               partitionerview.h
               qmlcombobox.h
               pluginregister.h

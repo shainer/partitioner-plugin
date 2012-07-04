@@ -58,11 +58,6 @@ Rectangle
     }
     
     /* Stores all the hidden dialogs, to be called when necessary */
-    Dialogs.FormatPartitionDialog {
-        id: formatDialog
-        objectName: "formatDialog"
-        
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.horizontalCenter: parent.horizontalCenter
-    }
+    Dialogs.FormatPartitionDialog {}
+    Dialogs.ModifyPartitionDialog {}
 }

@@ -15,6 +15,7 @@
 #include <pluginregister.h>
 #include <buttonnames.h>
 
+#include <solid/partitioner/actions/removepartitiontableaction.h>
 #include <solid/partitioner/utils/partitioner_enums.h>
 #include <solid/partitioner/actions/createpartitiontableaction.h>
 #include <solid/partitioner/actions/removepartitionaction.h>
@@ -61,6 +62,7 @@ PartitionerView::PartitionerView(QObject* parent)
     m_dialogs.insert(FORMAT_PARTITION, dialogSet->findChild< QObject* >("formatDialog"));
     m_dialogs.insert(MODIFY_PARTITION, dialogSet->findChild< QObject* >("modifyDialog"));
     m_dialogs.insert(CREATE_PARTITION_TABLE, dialogSet->findChild< QObject* >("createTableDialog"));
+    m_dialogs.insert(REMOVE_PARTITION_TABLE, dialogSet->findChild< QObject* >("removeTableDialog"));
     
     /* Receive changes from Solid */
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
@@ -76,6 +78,7 @@ PartitionerView::PartitionerView(QObject* parent)
     QObject::connect( m_dialogs[FORMAT_PARTITION], SIGNAL(closed(bool, QString, QString)), SLOT(formatDialogClosed(bool, QString, QString)) );
     QObject::connect( m_dialogs[MODIFY_PARTITION], SIGNAL(closed(bool, QString, QString)), SLOT(modifyDialogClosed(bool, QString, QString)) );
     QObject::connect( m_dialogs[CREATE_PARTITION_TABLE], SIGNAL(closed(bool, QString, QString)), SLOT(createTableDialogClosed(bool, QString, QString)));
+    QObject::connect( m_dialogs[REMOVE_PARTITION_TABLE], SIGNAL(closed(bool, QString)), SLOT(removeTableDialogClosed(bool, QString)));
     
     m_view.show();
 }
@@ -339,6 +342,18 @@ void PartitionerView::createTableDialogClosed(bool accepted, QString scheme, QSt
     
     PartitionTableScheme schemeEnum = (scheme == "gpt") ? GPTScheme : MBRScheme;
     m_manager->registerAction( new Actions::CreatePartitionTableAction(disk, schemeEnum) );
+    
+    setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
+    setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
+}
+
+void PartitionerView::removeTableDialogClosed(bool accepted, QString disk)
+{
+    if (!accepted) {
+        return;
+    }
+    
+    m_manager->registerAction( new Actions::RemovePartitionTableAction(disk) );
     
     setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
     setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */

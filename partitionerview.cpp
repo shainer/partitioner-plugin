@@ -15,6 +15,7 @@
 #include <pluginregister.h>
 #include <buttonnames.h>
 
+#include <solid/partitioner/actions/removepartitionaction.h>
 #include <solid/partitioner/actions/modifypartitionaction.h>
 #include <solid/partitioner/utils/partitiontableutils.h>
 #include <solid/partitioner/utils/filesystem.h>
@@ -257,6 +258,9 @@ void PartitionerView::doActionButtonClicked(QString actionName)
             m_flagsModel.addFlag( schemeFlag, partitionFlags.contains(schemeFlag) );
         }
     }
+    else if (actionName == REMOVE_PARTITION) { /* this doesn't need a dialog, so we directly call the "dialog closed slot" */
+        removePartitionDialogClosed(m_currentDevice);
+    }
     
     QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, m_currentDevice));
 }
@@ -307,6 +311,14 @@ void PartitionerView::modifyDialogClosed(bool accepted, QString label, QString p
     }
     
     m_manager->registerAction( new Actions::ModifyPartitionAction(partition, label, flags) );
+    
+    setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
+    setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
+}
+
+void PartitionerView::removePartitionDialogClosed(QString partition)
+{
+    m_manager->registerAction( new Actions::RemovePartitionAction(partition) );
     
     setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
     setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */

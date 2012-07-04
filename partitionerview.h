@@ -45,6 +45,7 @@ public slots:
     
     void formatDialogClosed(bool, QString, QString);
     void modifyDialogClosed(bool, QString, QString);
+    void removePartitionDialogClosed(QString);
     
 private:
     QDeclarativeView m_view;

@@ -26,13 +26,6 @@ Rectangle
     signal selectedDeviceChanged (string newDevice)
     signal actionButtonClicked (string actionName)
     
-    property string currentSelectedDevice : "none"
-    
-    /* Many actions need to know the currently selected device. */
-    onSelectedDeviceChanged: {
-        window.currentSelectedDevice = newDevice;
-    }
-
     Column {
         spacing: 10
         

@@ -10,7 +10,8 @@
 */
 import QtQuick 1.0
 
-Rectangle {
+Rectangle
+{
     id: dialogSet
     objectName: "dialogSet"
     
@@ -23,18 +24,21 @@ Rectangle {
     smooth: true
     radius: 2
     
-    border {
+    border
+    {
         color: "black"
         width: 2
     }
     
     states: [
-        State {
+        State
+        {
             name: "visible"
             PropertyChanges { target: dialogSet; opacity: 1 }
         },
         
-        State {
+        State 
+        {
             name: "invisible"
             PropertyChanges { target: dialogSet; opacity: 0 }
         }
@@ -43,14 +47,16 @@ Rectangle {
     
     /* Adds a nice animation for when the dialog is shown or hidden */
     transitions: [
-        Transition {
+        Transition 
+        {
             from: "invisible"
             to: "visible"
             
             PropertyAnimation { target: dialogSet; property: "opacity"; to: 1; duration: 150 }
         },
         
-        Transition {
+        Transition
+        {
             from: "visible"
             to: "invisible"
             

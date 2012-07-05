@@ -26,30 +26,23 @@ Rectangle
     signal selectedDeviceChanged (string newDevice)
     signal actionButtonClicked (string actionName)
     
-    Column {
+    Column
+    {
         spacing: 10
         objectName: "mainColumn"
         
-        ButtonBox {
-            id: buttonbox
-        }
+        ButtonBox { id: buttonbox }
         
-        Row {
+        Row
+        {
             spacing: 7
             objectName: "mainRow"
             
-            DiskList {
-                id: diskList
-            }
-            
-            DeviceTree {
-                id: deviceTree
-            }
+            DiskList { id: diskList }
+            DeviceTree { id: deviceTree }
         }
         
-        ActionList {
-            id: actionList
-        }
+        ActionList { id: actionList }
     }
     
     /* Stores all the hidden dialogs, to be called when necessary */

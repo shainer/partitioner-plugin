@@ -17,13 +17,15 @@ Column
     property int spacerHeight
     property int spacerWidth: 1
     
-    Rectangle {
+    Rectangle
+    {
         height: parent.spacerHeight
         width: parent.spacerWidth
         color: "#00000000" // transparency
     }
     
-    Text {
+    Text
+    {
         text: parent.text
     }
 }

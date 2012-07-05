@@ -10,19 +10,22 @@
 */
 import QtQuick 1.1
 
-Rectangle {
+Rectangle
+{
     id: deviceTree
     objectName: "deviceTree"
     
     width: (window.width * 3) / 4
     height: (window.height * 4) / 7
     
-    border {
+    border
+    {
         width: 2
         color: "black"
     }
     
-    ListView {
+    ListView
+    {
         id: deviceTreeView
         objectName: "deviceTreeView"
         
@@ -36,10 +39,12 @@ Rectangle {
         onCurrentItemChanged: window.selectedDeviceChanged(model[currentIndex].deviceName)
     }
     
-    Component {
+    Component
+    {
         id: deviceTreeDelegate
         
-        Rectangle {
+        Rectangle
+        {
             border.color: "#CCCCCC"
             color: "#00000000"
             width: deviceTree.width
@@ -48,12 +53,14 @@ Rectangle {
             smooth: true
             radius: 2
             
-            MouseArea {
+            MouseArea
+            {
                 anchors.fill: parent
                 onClicked: { deviceTreeView.currentIndex = index; window.selectedDeviceChanged(deviceName) }
             }
             
-            Row {
+            Row
+            {
                 anchors.fill: parent
                 anchors.margins: 6
                 
@@ -74,7 +81,8 @@ Rectangle {
                              0
                 }
                 
-                Text {
+                Text
+                {
                     id: devname
                     font.family: "Helvetica"
                     font.pointSize: 11
@@ -82,7 +90,8 @@ Rectangle {
                     width: deviceTree.width / 3
                 }
                 
-                Text {
+                Text
+                {
                     id: devmp
                     font.family: "Helvetica"
                     font.pointSize: 11
@@ -94,7 +103,8 @@ Rectangle {
                 /*
                  * This makes sure the following items are aligned correctly.
                  */
-                Rectangle {
+                Rectangle
+                {
                     id: spacer2
                     color: "#00000000"
                     
@@ -107,8 +117,8 @@ Rectangle {
                              0
                 }
                 
-                
-                Text {
+                Text
+                {
                     id: devlabel
                     font.family: "Helvetica"
                     font.pointSize: 11
@@ -117,7 +127,8 @@ Rectangle {
                     width: deviceTree.width / 7
                 }
                 
-                Text {
+                Text
+                {
                     id: devfs
                     font.family: "Helvetica"
                     font.pointSize: 11
@@ -126,7 +137,8 @@ Rectangle {
                     width: deviceTree.width / 10
                 }
                 
-                Text {
+                Text
+                {
                     id: devsize
                     font.family: "Helvetica"
                     font.pointSize: 11

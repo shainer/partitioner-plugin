@@ -5,7 +5,8 @@ import Qt 4.7
 import "./behaviors"
 import "./styles/default" as DefaultStyles
 
-CheckBox {
+CheckBox
+{
     id: radiobutton
     
     width: 15

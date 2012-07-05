@@ -10,7 +10,7 @@
 */
 
 import QtQuick 1.0
-import ComboBox 1.0
+import ApplicationWidgets 1.0
 
 Rectangle
 {
@@ -29,7 +29,8 @@ Rectangle
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
     signal closed(bool accepted, string filesystem, string partition)
     
-    function show(partition) {
+    function show(partition)
+    {
         formatDialog.partition = partition;
         dialogSet.state = "visible";
         formatDialog.opacity = 1;
@@ -41,26 +42,30 @@ Rectangle
         parent.height = 150;
     }
     
-    function hide() {
+    function hide()
+    {
         dialogSet.state = "invisible";
         formatDialog.opacity = 0;
     }
     
-    Text {
+    Text
+    {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.topMargin: 10
         anchors.leftMargin: 6
         
         text: "Select filesystem: "
-        font {
+        font
+        {
             family: "Helvetica"
             pointSize: 12
         }
     }
     
     /* TODO: for now it holds dummy data. I'll connect a model later. */
-    ComboBox {
+    ComboBox
+    {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: 10
@@ -72,7 +77,8 @@ Rectangle
     }
     
     /* TODO: see before. The displayed flags/label edit should change according to the current filesystem. */
-    FlagsList {
+    FlagsList
+    {
         id: flagsList
         objectName: "flagsList"
         
@@ -80,15 +86,18 @@ Rectangle
         anchors.verticalCenter: parent.verticalCenter
     }
         
-    Row {
+    Row
+    {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         spacing: 10
         
-        GenericButton {
+        GenericButton
+        {
             text: "Ok"
             
-            MouseArea {
+            MouseArea
+            {
                 anchors.fill: parent
                 onClicked: {
                     formatDialog.hide();
@@ -97,10 +106,12 @@ Rectangle
             }
         }
         
-        GenericButton {
+        GenericButton
+        {
             text: "Cancel"
             
-            MouseArea {
+            MouseArea
+            {
                 anchors.fill: parent
                 onClicked: {
                     formatDialog.hide();

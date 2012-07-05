@@ -10,7 +10,8 @@
 */
 import QtQuick 1.0
 
-Rectangle {
+Rectangle
+{
     id: modifyDialog
     objectName: "modifyDialog"
      
@@ -26,7 +27,8 @@ Rectangle {
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
     signal closed(bool accepted, string label, string partition)
     
-    function show(partition) {
+    function show(partition)
+    {
         modifyDialog.partition = partition;
         dialogSet.state = "visible";
         modifyDialog.opacity = 1;
@@ -35,12 +37,14 @@ Rectangle {
         parent.height = 150;
     }
     
-    function hide() {
+    function hide()
+    {
         dialogSet.state = "invisible";
         modifyDialog.opacity = 0;
     }
     
-    Text {
+    Text
+    {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.leftMargin: 6
@@ -48,7 +52,8 @@ Rectangle {
         text: "Enter new label: "
     }
     
-    Rectangle {        
+    Rectangle
+    {        
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.rightMargin: 6
@@ -63,7 +68,8 @@ Rectangle {
         smooth: true
         radius: 3
         
-        TextInput {
+        TextInput
+        {
             id: labelInput
             
             anchors.fill: parent
@@ -72,21 +78,25 @@ Rectangle {
         }
     }
     
-    FlagsList {
+    FlagsList
+    {
         anchors.left: parent.left
         anchors.leftMargin: 6
         anchors.verticalCenter: parent.verticalCenter
     }
         
-    Row {
+    Row
+    {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         spacing: 10
         
-        GenericButton {
+        GenericButton
+        {
             text: "Ok"
             
-            MouseArea {
+            MouseArea
+            {
                 anchors.fill: parent
                 onClicked: {
                     modifyDialog.hide();
@@ -95,10 +105,12 @@ Rectangle {
             }
         }
         
-        GenericButton {
+        GenericButton
+        {
             text: "Cancel"
             
-            MouseArea {
+            MouseArea
+            {
                 anchors.fill: parent
                 onClicked: {
                     modifyDialog.hide();

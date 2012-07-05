@@ -10,17 +10,20 @@
 */
 import QtQuick 1.0
 
-Rectangle {
+Rectangle
+{
     id: actionListContainer
     width: window.width
     height: (window.height / 7) * 2
     
-    border {
+    border
+    {
         width: 2
         color: "black"
     }
     
-    ListView {
+    ListView
+    {
         id: actionListView
         model: actionModel
         
@@ -29,9 +32,11 @@ Rectangle {
         
         anchors.margins: 6
         
-        delegate: Text {
-            text: modelData
-            font.pointSize: 10
-        }
+        delegate:
+            Text
+            {
+                text: modelData
+                font.pointSize: 10
+            }
     }
 }

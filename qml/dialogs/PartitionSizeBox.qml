@@ -12,7 +12,8 @@
 */
 import QtQuick 1.0
 
-Grid {
+Grid
+{
     columns: 2
     rows: 3
     spacing: 5

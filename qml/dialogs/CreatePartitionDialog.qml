@@ -9,7 +9,7 @@
    version 2 of the License, or (at your option) any later version.
 */
 import QtQuick 1.0
-import ComboBox 1.0
+import ApplicationWidgets 1.0
 
 Rectangle
 {
@@ -30,7 +30,8 @@ Rectangle
     /* TODO: this still isn't caught by anything so many parameters are missing */
     signal closed(bool accepted, string disk)
     
-    function show(disk) {
+    function show(disk)
+    {
         createPartitionDialog.disk = disk;
         dialogSet.state = "visible";
         createPartitionDialog.opacity = 1;
@@ -44,7 +45,8 @@ Rectangle
         parent.height = 270;
     }
     
-    function hide() {
+    function hide()
+    {
         dialogSet.state = "invisible";
         createPartitionDialog.opacity = 0;
     }
@@ -52,7 +54,8 @@ Rectangle
     /*
      * We cannot use a Grid here otherwise it would conflict with the PartitionSizeBox's layout.
      */
-    Column {
+    Column
+    {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
@@ -60,12 +63,14 @@ Rectangle
         
         spacing: 5
         
-        Row {
+        Row
+        {
             spacing: 110 /* align with other rows */
             
             SpacedText { text: "Label: "; spacerHeight: 5 }
             
-            Rectangle {            
+            Rectangle
+            {            
                 width: 150
                 height: 20
                 color: "white"
@@ -75,7 +80,8 @@ Rectangle
                 smooth: true
                 radius: 3
                 
-                TextInput {
+                TextInput
+                {
                     id: labelInput
                     
                     anchors.fill: parent
@@ -85,9 +91,7 @@ Rectangle
         
         }
         
-        PartitionSizeBox {
-            id: partitionSize
-        }
+        PartitionSizeBox { id: partitionSize }
         
         Row
         {
@@ -119,12 +123,14 @@ Rectangle
         anchors.bottomMargin: 80
     }
     
-    Row {
+    Row
+    {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         spacing: 10
         
-        GenericButton {
+        GenericButton
+        {
             text: "Ok"
             
             MouseArea {
@@ -136,10 +142,12 @@ Rectangle
             }
         }
         
-        GenericButton {
+        GenericButton
+        {
             text: "Cancel"
             
-            MouseArea {
+            MouseArea
+            {
                 anchors.fill: parent
                 onClicked: {
                     createPartitionDialog.hide();

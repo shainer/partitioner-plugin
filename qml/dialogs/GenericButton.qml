@@ -1,6 +1,7 @@
 import QtQuick 1.0
 
-Rectangle {
+Rectangle
+{
     property variant text
     signal clicked
 
@@ -11,26 +12,32 @@ Rectangle {
     radius: 4
     smooth: true
 
-    gradient: Gradient {
-        GradientStop {
-            position: 0.0
-            color: !mouseArea.pressed ? activePalette.light : activePalette.button
+    gradient: 
+        Gradient
+        {
+            GradientStop
+            {
+                position: 0.0
+                color: !mouseArea.pressed ? activePalette.light : activePalette.button
+            }
+            GradientStop
+            {
+                position: 1.0
+                color: !mouseArea.pressed ? activePalette.button : activePalette.dark
+            }
         }
-        GradientStop {
-            position: 1.0
-            color: !mouseArea.pressed ? activePalette.button : activePalette.dark
-        }
-    }
 
     SystemPalette { id: activePalette }
 
-    MouseArea {
+    MouseArea
+    {
         id: mouseArea
         anchors.fill: parent
         onClicked: parent.clicked()
     }
 
-    Text {
+    Text
+    {
         id: text
         anchors.centerIn: parent
         font.pointSize: 9

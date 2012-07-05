@@ -10,17 +10,20 @@
 */
 import QtQuick 1.1
 
-Rectangle {
+Rectangle
+{
     id: diskList
     width: (window.width * 1) / 4
     height: (window.height * 4) / 7
     
-    border {
+    border
+    {
         width: 2
         color: "black"
     }
     
-    ListView {
+    ListView
+    {
         id: diskListView
         model: diskModel
         
@@ -29,16 +32,19 @@ Rectangle {
         anchors.fill: parent
         anchors.margins: 6
         
-        delegate: Text {
-            text: modelData
-            font.family: "Helvetica"
-            font.pointSize: 11
-            lineHeight: 1.3
+        delegate:
+            Text
+            {
+                text: modelData
+                font.family: "Helvetica"
+                font.pointSize: 11
+                lineHeight: 1.3
             
-            MouseArea {
-                anchors.fill: parent
-                onClicked: { diskListView.currentIndex = index; window.selectedDiskChanged(modelData) }
+                MouseArea
+                {
+                    anchors.fill: parent
+                    onClicked: { diskListView.currentIndex = index; window.selectedDiskChanged(modelData) }
+                }
             }
-        }
     }
 }

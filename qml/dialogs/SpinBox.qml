@@ -4,7 +4,8 @@
  */
 import Qt 4.7
 
-Item {
+Item
+{
     id: spinbox
 
     property int minimumWidth: defaultStyle.minimumWidth
@@ -51,7 +52,8 @@ Item {
     signal setNewValue(real oldValue)
     
     /* increment() or decrement() are caused by the user clicking on the arrows, so always sent the signal */
-    function increment() {
+    function increment()
+    {
         var oldval = value
         value += singlestep
         
@@ -63,7 +65,8 @@ Item {
         spinbox.setNewValue(oldval)
     }
 
-    function decrement() {
+    function decrement()
+    {
         var oldval = value
         value -= singlestep
         
@@ -79,7 +82,8 @@ Item {
      * This is called by the user when it changes the spinbox value, but also by the application because it performs all
      * the necessary checks on the new value. So send the signal only when safe.
      */
-    function setValue(v, sendSignal) {
+    function setValue(v, sendSignal)
+    {
         var newval = parseFloat(v)
         var oldval = value
         
@@ -97,19 +101,22 @@ Item {
     }
 
     // background
-    Loader {
+    Loader
+    {
         id: backgroundComponent
         anchors.fill: parent
         sourceComponent: background
     }
 
-    MouseArea {
+    MouseArea
+    {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
     }
 
-    TextInput {
+    TextInput
+    {
         id: input
         font.pixelSize: 14
         anchors.margins: 5
@@ -126,15 +133,18 @@ Item {
         opacity: parent.enabled ? 1 : 0.5
     }
 
-    Loader {
+    Loader
+    {
         id: upButton
         sourceComponent: up
-        MouseArea {
+        MouseArea
+        {
             id: mouseUp
             anchors.fill: upButton.item
             onClicked: increment()
             Timer { running: parent.pressed; interval: 100 ; repeat: true ; onTriggered: increment() }
         }
+        
         onLoaded: {
             item.parent = spinbox
             mouseUp.parent = item
@@ -143,15 +153,18 @@ Item {
         }
     }
 
-    Loader {
+    Loader
+    {
         id: downButton
         sourceComponent: down
-        MouseArea {
+        MouseArea
+        {
             id: mouseDown
             anchors.fill: downButton.item
             onClicked: decrement()
             Timer { running: parent.pressed; interval: 100 ; repeat: true ; onTriggered: decrement() }
         }
+        
         onLoaded: {
             item.parent = spinbox
             mouseDown.parent = item

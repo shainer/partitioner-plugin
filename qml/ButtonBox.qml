@@ -15,7 +15,8 @@ Rectangle
     width: window.width
     height: 70
     
-    border {
+    border
+    {
         width: 1
         color: "black"
     }
@@ -33,7 +34,8 @@ Rectangle
             model: buttonBoxModel
             
             delegate:
-                ActionButton {
+                ActionButton
+                {
                     text: buttonName
                     iconPath: iconName
                 }

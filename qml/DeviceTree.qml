@@ -14,7 +14,7 @@ Rectangle {
     id: deviceTree
     objectName: "deviceTree"
     
-    width: (window.width * 2) / 3
+    width: (window.width * 3) / 4
     height: (window.height * 4) / 7
     
     border {

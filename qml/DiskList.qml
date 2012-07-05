@@ -12,7 +12,7 @@ import QtQuick 1.1
 
 Rectangle {
     id: diskList
-    width: window.width / 3
+    width: (window.width * 1) / 4
     height: (window.height * 4) / 7
     
     border {

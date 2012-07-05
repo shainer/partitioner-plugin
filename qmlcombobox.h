@@ -25,6 +25,7 @@ class ComboBox : public QGraphicsProxyWidget
     
 public:
     ComboBox(QGraphicsItem* parent = 0);
+    ~ComboBox();
     
     QString currentText() const;
     

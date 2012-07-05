@@ -20,6 +20,11 @@ ComboBox::ComboBox(QGraphicsItem* parent)
     QObject::connect(widget, SIGNAL(currentIndexChanged(QString)), this, SIGNAL(currentTextChanged(QString)));
 }
 
+ComboBox::~ComboBox()
+{
+    widget->deleteLater();
+}
+
 QString ComboBox::currentText() const
 {
     return widget->currentText();

@@ -9,6 +9,7 @@
    version 2 of the License, or (at your option) any later version.
 */
 import QtQuick 1.1
+import ApplicationWidgets 1.0
 
 Rectangle
 {
@@ -24,7 +25,8 @@ Rectangle
     property string disk
     signal closed(bool accepted, string disk)
     
-    function show(disk) {
+    function show(disk)
+    {
         removeTableDialog.disk = disk;
         dialogSet.state = "visible";
         removeTableDialog.opacity = 1;
@@ -33,13 +35,24 @@ Rectangle
         parent.height = 100;
     }
     
-    function hide() {
+    function hide()
+    {
         dialogSet.state = "invisible";
         removeTableDialog.opacity = 0;
     }
     
-    Text {
+    Image
+    {
         anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        source: dialogIcon.iconPath("dialog-warning")
+        
+        Icon { id: dialogIcon }
+    }
+    
+    Text
+    {
+        anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: 10
@@ -47,15 +60,18 @@ Rectangle
         text: "Warning! This will erase all partitions and data on your disk.\nDo you want to continue?"
     }
     
-    Row {
+    Row
+    {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         spacing: 10
         
-        GenericButton {
+        GenericButton
+        {
             text: "Ok"
             
-            MouseArea {
+            MouseArea
+            {
                 anchors.fill: parent
                 onClicked: {                    
                     removeTableDialog.hide();
@@ -64,12 +80,15 @@ Rectangle
             }
         }
         
-        GenericButton {
+        GenericButton
+        {
             text: "Cancel"
             
-            MouseArea {
+            MouseArea
+            {
                 anchors.fill: parent
-                onClicked: {
+                onClicked:
+                {
                     removeTableDialog.hide();
                     removeTableDialog.closed(false, removeTableDialog.disk);
                 }

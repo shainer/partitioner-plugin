@@ -9,6 +9,7 @@
    version 2 of the License, or (at your option) any later version.
 */
 import QtQuick 1.0
+import ApplicationWidgets 1.0
 
 Rectangle
 {
@@ -26,12 +27,13 @@ Rectangle
     property string newScheme
     signal closed(bool accepted, string scheme, string disk)
     
-    function show(disk) {
+    function show(disk)
+    {
         createTableDialog.disk = disk;
         dialogSet.state = "visible";
         createTableDialog.opacity = 1;
         
-        parent.width = 320;
+        parent.width = 370;
         parent.height = 150;
         
         if (createTableDialog.currentScheme == "gpt") {
@@ -42,22 +44,38 @@ Rectangle
         }
     }
     
-    function hide() {
+    function hide()
+    {
         dialogSet.state = "invisible";
         createTableDialog.opacity = 0;
     }
     
-    Text {
+    Row
+    {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: 10
+        spacing: 5
+
+        Image
+        {
+            source: dialogIcon.iconPath("dialog-warning")
+            
+            Icon { id: dialogIcon }
+        }
         
-        text: "Choose a new partition table scheme for this disk.\n!Warning! this will delete any partition or data."
+        Text
+        {        
+            text: "Choose a new partition table scheme for this disk.\n!Warning! this will delete any partition or data."
+        }
     }
     
-   Grid {
+   Grid
+   {
         anchors.verticalCenter: parent.verticalCenter
+        anchors.left: parent.left
+        anchors.leftMargin: 10
         columns: 2
         rows: 2
         spacing: 5
@@ -79,15 +97,18 @@ Rectangle
         Text { text: "gpt" }
     }
 
-    Row {
+    Row
+    {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         spacing: 10
         
-        GenericButton {
+        GenericButton
+        {
             text: "Ok"
             
-            MouseArea {
+            MouseArea
+            {
                 anchors.fill: parent
                 onClicked: {                    
                     createTableDialog.hide();
@@ -96,11 +117,13 @@ Rectangle
             }
         }
         
-        GenericButton {
+        GenericButton
+        {
             text: "Cancel"
             
             /* We don't really care about the info we sent if the user clicked Cancel */
-            MouseArea {
+            MouseArea
+            {
                 anchors.fill: parent
                 onClicked: {
                     createTableDialog.hide();

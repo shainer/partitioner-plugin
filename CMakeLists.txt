@@ -24,6 +24,7 @@ set(test_SRCS
     flagsmodel.cpp
 
     qmlcombobox.cpp
+    qmlkdeicon.cpp
     pluginregister.cpp
 )
 
@@ -33,14 +34,15 @@ target_link_libraries(test ${CMAKE_INSTALL_PREFIX}/lib/libsolid.so
                            ${QT_QTGUI_LIBRARY}
                            
                            ${QT_QTDECLARATIVE_LIBRARY}
-                           ${KDE4_KIO_LIBRARY})
+                           ${KDE4_KIO_LIBRARY}
+                           ${KDE4_UI_LIBRARY} )
 
 install(FILES buttonboxmodel.h
               devicetreemodel.h
               flagsmodel.h
-
               partitionerview.h
               qmlcombobox.h
+              qmlkdeicon.h
               pluginregister.h
               buttonnames.h
         DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/include)

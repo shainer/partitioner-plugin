@@ -14,6 +14,7 @@
 #include <qmlcombobox.h>
 #include <pluginregister.h>
 #include <buttonnames.h>
+#include "qmlkdeicon.h"
 
 #include <solid/partitioner/actions/removepartitiontableaction.h>
 #include <solid/partitioner/utils/partitioner_enums.h>
@@ -30,6 +31,8 @@
 
 #include <QDeclarativeContext>
 #include <qdeclarative.h>
+#include <kicontheme.h>
+#include <k3icon_p.h>
 
 using namespace Solid::Partitioner;
 using namespace Solid::Partitioner::Actions;
@@ -47,11 +50,12 @@ PartitionerView::PartitionerView(QObject* parent)
     setDiskList();
     setActionList();
     setDiskTree( m_diskList.first() ); /* the disk initially displayed is the first in the list */
-    
+    setIconDatabase();
+
     /* This model is initial empty, but it's okay because it won't be displayed right now. */
     m_context->setContextProperty("flagsModel", &m_flagsModel);
     
-    plugin.registerTypes("ComboBox");
+    plugin.registerTypes("ApplicationWidgets");
     m_view.setSource(QUrl::fromLocalFile("../../install/plugin/qml/main.qml")); // TODO: change this
     m_view.setResizeMode(QDeclarativeView::SizeViewToRootObject);
     
@@ -102,16 +106,16 @@ QObject* PartitionerView::getTreeView()
 /* This sets the information needed to display the button box on top. By default, all buttons are clickable. */
 void PartitionerView::setButtonBox()
 {
-    m_boxmodel.addTuple( ButtonBoxTuple(CREATE_PARTITION, "icon.gif") );
-    m_boxmodel.addTuple( ButtonBoxTuple(REMOVE_PARTITION, "icon.gif") );
-    m_boxmodel.addTuple( ButtonBoxTuple(RESIZE_PARTITION, "icon.gif") );
-    m_boxmodel.addTuple( ButtonBoxTuple(FORMAT_PARTITION, "icon.gif") );
-    m_boxmodel.addTuple( ButtonBoxTuple(MODIFY_PARTITION, "icon.gif") );
-    m_boxmodel.addTuple( ButtonBoxTuple(CREATE_PARTITION_TABLE, "icon.gif") );
-    m_boxmodel.addTuple( ButtonBoxTuple(REMOVE_PARTITION_TABLE, "icon.gif") );
-    m_boxmodel.addTuple( ButtonBoxTuple(UNDO, "icon.gif") );
-    m_boxmodel.addTuple( ButtonBoxTuple(REDO, "icon.gif") );
-    m_boxmodel.addTuple( ButtonBoxTuple(APPLY, "icon.gif") );
+    m_boxmodel.addTuple( ButtonBoxTuple(CREATE_PARTITION, "list-add") );
+    m_boxmodel.addTuple( ButtonBoxTuple(REMOVE_PARTITION, "list-remove") );
+    m_boxmodel.addTuple( ButtonBoxTuple(RESIZE_PARTITION, "edit-cut") );
+    m_boxmodel.addTuple( ButtonBoxTuple(FORMAT_PARTITION, "edit-paste") );
+    m_boxmodel.addTuple( ButtonBoxTuple(MODIFY_PARTITION, "document-properties") );
+    m_boxmodel.addTuple( ButtonBoxTuple(CREATE_PARTITION_TABLE, "document-new") );
+    m_boxmodel.addTuple( ButtonBoxTuple(REMOVE_PARTITION_TABLE, "edit-delete") );
+    m_boxmodel.addTuple( ButtonBoxTuple(UNDO, "edit-undo") );
+    m_boxmodel.addTuple( ButtonBoxTuple(REDO, "edit-redo") );
+    m_boxmodel.addTuple( ButtonBoxTuple(APPLY, "system-run") );
     
     m_context->setContextProperty("buttonBoxModel", &m_boxmodel);
 }

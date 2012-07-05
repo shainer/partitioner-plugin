@@ -11,11 +11,13 @@
 
 #include <pluginregister.h>
 #include <qmlcombobox.h>
+#include <qmlkdeicon.h>
 #include <qdeclarative.h>
 
 void QWidgetsPlugin::registerTypes(const char* uri)
 {
     qmlRegisterType< ComboBox >(uri, 1, 0, "ComboBox");
+    qmlRegisterType< Icon >(uri, 1, 0, "Icon");
 }
 
 #include "pluginregister.moc"

@@ -9,8 +9,10 @@
    version 2 of the License, or (at your option) any later version.
 */
 import QtQuick 1.0
+import ApplicationWidgets 1.0
 
-Rectangle {
+Rectangle
+{
     id: actionButton
     objectName: "actionButton"
     
@@ -20,7 +22,8 @@ Rectangle {
     height: buttonbox.height
     width: buttonLabel.width + 37
     
-    border {
+    border
+    {
         width: 2
         color: "gray"
     }
@@ -29,7 +32,8 @@ Rectangle {
     smooth: true
     radius: 5
     
-    MouseArea {
+    MouseArea
+    {
         id: mouseArea
         anchors.fill: parent
         enabled: clickEnabled
@@ -37,18 +41,24 @@ Rectangle {
         onClicked: window.actionButtonClicked(actionButton.text)
     }
     
-    Column {
+    Column
+    {
         id: layout
         anchors.fill: parent
+        anchors.margins: 5
         spacing: 10
         
-        Image {
-            id: buttonIcon
-            source: actionButton.iconPath
+        Image
+        {
+            id: buttonImage
+            source: buttonIcon.iconPath(iconName)
             anchors.horizontalCenter: parent.horizontalCenter
+            
+            Icon { id: buttonIcon }
         }
         
-        Text {
+        Text
+        {
             id: buttonLabel
             anchors.horizontalCenter: parent.horizontalCenter
             text: actionButton.text

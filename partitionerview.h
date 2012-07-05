@@ -75,6 +75,7 @@ private:
     void setActionList();
     void setDiskTree(const QString &);
     
+    QStringList acceptedPartitionTypes(const VolumeTree &, Devices::DeviceModified *);
     QObject* getTreeView();
     void afterClosedDialog();
 };

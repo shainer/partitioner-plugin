@@ -1,3 +1,7 @@
+/*
+ * Taken from https://qt.gitorious.org/qt-components/qt-components (with some changes)
+ * FIXME: fix the binding loop.
+ */
 import Qt 4.7
 
 Item {
@@ -19,9 +23,9 @@ Item {
 
     property real value: 0.0
     property real maximum: 99
-    property real minimum: 0
+    property real minimum: 0.0
     property real singlestep: 1
-
+    
     property bool upEnabled: value != maximum;
     property bool downEnabled: value != minimum;
 
@@ -39,28 +43,57 @@ Item {
     property Component down: defaultStyle.down
     SpinBoxStyle { id: defaultStyle }
 
+    /*
+     * This signal is emitted when the user (and only the user!) sets a new value for the spinbox.
+     * It's needed because in our use case changing the value of a spinbox affects the value of other spinboxes, but
+     * if we send a signal for every change our application will loop forever. So don't try using valueChanged() instead.
+     */
+    signal setNewValue(real oldValue)
+    
+    /* increment() or decrement() are caused by the user clicking on the arrows, so always sent the signal */
     function increment() {
+        var oldval = value
         value += singlestep
-        if (value > maximum)
+        
+        if (value > maximum) {
             value = maximum
+        }
+            
         input.text = value
+        spinbox.setNewValue(oldval)
     }
 
     function decrement() {
+        var oldval = value
         value -= singlestep
-        if (value < minimum)
+        
+        if (value < minimum) {
             value = minimum
+        }
+        
         input.text = value
+        spinbox.setNewValue(oldval)
     }
 
-    function setValue(v) {
+    /*
+     * This is called by the user when it changes the spinbox value, but also by the application because it performs all
+     * the necessary checks on the new value. So send the signal only when safe.
+     */
+    function setValue(v, sendSignal) {
         var newval = parseFloat(v)
+        var oldval = value
+        
         if (newval > maximum)
             newval = maximum
-        else if (value < minimum)
+        else if (newval < minimum)
             newval = minimum
+        
         value = newval
         input.text = value
+        
+        if (sendSignal) {
+            spinbox.setNewValue(oldval)
+        }
     }
 
     // background
@@ -88,7 +121,7 @@ Item {
         selectByMouse: true
         text: spinbox.value
         validator: DoubleValidator { bottom: 11; top: 31 }
-        onTextChanged: { spinbox.setValue(text); }
+        onTextChanged: { spinbox.setValue(text, true); } /* the user set a different value from the GUI */
         color: textColor
         opacity: parent.enabled ? 1 : 0.5
     }

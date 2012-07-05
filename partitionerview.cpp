@@ -64,6 +64,7 @@ PartitionerView::PartitionerView(QObject* parent)
     m_dialogs.insert(MODIFY_PARTITION, dialogSet->findChild< QObject* >("modifyDialog"));
     m_dialogs.insert(CREATE_PARTITION_TABLE, dialogSet->findChild< QObject* >("createTableDialog"));
     m_dialogs.insert(REMOVE_PARTITION_TABLE, dialogSet->findChild< QObject* >("removeTableDialog"));
+    m_dialogs.insert(CREATE_PARTITION, dialogSet->findChild< QObject* >("createPartitionDialog"));
     
     /* Receive changes from Solid */
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
@@ -264,6 +265,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
     DeviceModified* device = diskTree.searchDevice(m_currentDevice);
     
+    /* FIXME: set supported filesystems properly */
     m_flagsModel.reset();
 
     if (actionName == MODIFY_PARTITION) {
@@ -277,18 +279,57 @@ void PartitionerView::doActionButtonClicked(QString actionName)
             m_flagsModel.addFlag( schemeFlag, partitionFlags.contains(schemeFlag) );
         }
     }
-    else if (actionName == REMOVE_PARTITION) { /* this doesn't need a dialog, so we directly call the "dialog closed slot" */
+    else if (actionName == REMOVE_PARTITION) { /* this doesn't need a dialog, so we directly call the "dialog closed" slot */
         removePartitionDialogClosed(m_currentDevice);
         return;
     }
     else if (actionName == CREATE_PARTITION_TABLE) {
         dialog->setProperty("currentScheme", diskTree.disk()->partitionTableScheme());
     }
-    else if (actionName == FORMAT_PARTITION) { /* FIXME: do this properly */
+    else if (actionName == FORMAT_PARTITION) {
         dialog->setProperty("supportedFilesystems", QStringList() << "ntfs" << "vfat" << "unformatted");
+    }
+    else if (actionName == CREATE_PARTITION) {
+        /* Shows filesystems you can format the new partition with (unformatted means "none") */
+        dialog->setProperty("supportedFilesystems", QStringList() << "ntfs" << "vfat" << "unformatted");
+
+        /* Shows flags you can set for this partition */
+        Disk* disk = diskTree.disk();
+        foreach (const QString& flag, PartitionTableUtils::instance()->supportedFlags( disk->partitionTableScheme() )) {
+            m_flagsModel.addFlag(flag, false);
+        }
+        
+        /* Available space in megabytes */
+        double freeSpaceMega = (double)device->size() / 1024.0f / 1024.0f;
+        dialog->setProperty("freespace", freeSpaceMega);
+        
+        /* Possible types (logical, primary or extended) for the new partition */
+        QStringList types = acceptedPartitionTypes(diskTree, device);
+        dialog->setProperty("acceptedPartitionTypes", types);
     }
     
     QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, m_currentDevice));
+}
+
+QStringList PartitionerView::acceptedPartitionTypes(const VolumeTree& diskTree, Devices::DeviceModified* freeSpace)
+{
+    DeviceModified* parent = diskTree.parentDevice(freeSpace);
+    QStringList types;
+    
+    /* If the free space blocks is located inside an extended partition, we can only create a logical */
+    if (parent->deviceType() == DeviceModified::PartitionDevice) {
+        types.append("Logical");
+    }
+    else {
+        types.append("Primary");
+        
+        /* There can be only one extended of a MS-DOS disk */
+        if (!diskTree.extendedPartition()) {
+            types.append("Extended");
+        }
+    }
+    
+    return types;
 }
 
 void PartitionerView::formatDialogClosed(bool accepted, QString filesystem, QString partition)

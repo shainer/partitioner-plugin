@@ -62,4 +62,5 @@ Rectangle {
     ModifyPartitionDialog {}
     CreatePartitionTableDialog {}
     RemovePartitionTableDialog {}
+    CreatePartitionDialog {}
 }

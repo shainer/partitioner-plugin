@@ -54,6 +54,7 @@ public slots:
     void createTableDialogClosed(bool, QString, QString);
     void removeTableDialogClosed(bool, QString);
     void createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString, QString);
+    void resizeDialogClosed(bool, qreal, qreal, QString);
 
     void undoDialogClosed();
     void redoDialogClosed();
@@ -89,7 +90,8 @@ private:
     QObject* getTreeView();
     QStringList checkedFlags(const QString &);
     QStringList acceptedPartitionTypes(const VolumeTree &, Devices::DeviceModified *);
-    void afterClosedDialog();
+    void afterCancelClicked();
+    void afterOkClicked();
 };
 
 #endif

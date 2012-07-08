@@ -37,7 +37,7 @@ Rectangle
         
         partitionSizeBox.init(before, size, after)
         
-        parent.width = 250;
+        parent.width = 350;
         parent.height = 150;
     }
     
@@ -71,7 +71,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     resizeDialog.hide();
-                    resizeDialog.closed(true, partitionSize.pSize, partitionSize.bSize, resizeDialog.partition);
+                    resizeDialog.closed(true, partitionSizeBox.pSize, partitionSizeBox.bSize, resizeDialog.partition);
                 }
             }
         }

@@ -48,6 +48,7 @@ public slots:
     void removePartitionDialogClosed(QString);
     void createTableDialogClosed(bool, QString, QString);
     void removeTableDialogClosed(bool, QString);
+    void createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString, QString);
     
 private:
     QDeclarativeView m_view;
@@ -75,6 +76,7 @@ private:
     void setActionList();
     void setDiskTree(const QString &);
     
+    QStringList checkedFlags(const QString &);
     QStringList acceptedPartitionTypes(const VolumeTree &, Devices::DeviceModified *);
     QObject* getTreeView();
     void afterClosedDialog();

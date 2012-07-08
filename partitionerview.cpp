@@ -14,8 +14,9 @@
 #include <qmlcombobox.h>
 #include <pluginregister.h>
 #include <buttonnames.h>
-#include "qmlkdeicon.h"
+#include <qmlkdeicon.h>
 
+#include <solid/partitioner/actions/createpartitionaction.h>
 #include <solid/partitioner/actions/removepartitiontableaction.h>
 #include <solid/partitioner/utils/partitioner_enums.h>
 #include <solid/partitioner/actions/createpartitiontableaction.h>
@@ -85,6 +86,9 @@ PartitionerView::PartitionerView(QObject* parent)
     QObject::connect( m_dialogs[MODIFY_PARTITION], SIGNAL(closed(bool, QString, QString)), SLOT(modifyDialogClosed(bool, QString, QString)) );
     QObject::connect( m_dialogs[CREATE_PARTITION_TABLE], SIGNAL(closed(bool, QString, QString)), SLOT(createTableDialogClosed(bool, QString, QString)));
     QObject::connect( m_dialogs[REMOVE_PARTITION_TABLE], SIGNAL(closed(bool, QString)), SLOT(removeTableDialogClosed(bool, QString)));
+    QObject::connect( m_dialogs[CREATE_PARTITION],
+                      SIGNAL(closed(bool, qreal, qreal, QString, QString, QString, QString, QString)),
+                      SLOT(createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString, QString)));
     
     m_view.show();
 }
@@ -294,6 +298,8 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         dialog->setProperty("supportedFilesystems", QStringList() << "ntfs" << "vfat" << "unformatted");
     }
     else if (actionName == CREATE_PARTITION) {
+        dialog->setProperty("disk", m_currentDisk);
+        
         /* Shows filesystems you can format the new partition with (unformatted means "none") */
         dialog->setProperty("supportedFilesystems", QStringList() << "ntfs" << "vfat" << "unformatted");
 
@@ -328,7 +334,7 @@ QStringList PartitionerView::acceptedPartitionTypes(const VolumeTree& diskTree, 
         types.append("Primary");
         
         /* There can be only one extended of a MS-DOS disk */
-        if (!diskTree.extendedPartition()) {
+        if (!diskTree.extendedPartition() && diskTree.disk()->partitionTableScheme() == "mbr") {
             types.append("Extended");
         }
     }
@@ -342,20 +348,9 @@ void PartitionerView::formatDialogClosed(bool accepted, QString filesystem, QStr
         return;
     }
     
-    QStringList flags;
-    QObject* flagsList = m_dialogs[FORMAT_PARTITION]->findChild< QObject* >("flagsList");
-    QList< QObject* > rowLayout = flagsList->findChildren< QObject* >("row");
-    
-    foreach (QObject* row, rowLayout) {
-        QObject* checkbox = row->findChild< QObject* >("flagCheckBox");
-        QObject* flag = row->findChild< QObject* >("flagName");
-        
-        if (checkbox->property("checked").toBool()) {
-            flags.append( flag->property("text").toString() );
-        }
-    }
-    
+    QStringList flags = checkedFlags(FORMAT_PARTITION);
     Filesystem fs(filesystem, flags);
+    
     m_manager->registerAction( new Actions::FormatPartitionAction(partition, fs) );
     afterClosedDialog();
 }
@@ -366,18 +361,7 @@ void PartitionerView::modifyDialogClosed(bool accepted, QString label, QString p
         return;
     }
     
-    QStringList flags;
-    QObject* flagsList = m_dialogs[MODIFY_PARTITION]->findChild< QObject* >("flagsList");
-    QList< QObject* > rowLayout = flagsList->findChildren< QObject* >("row");
-    
-    foreach (QObject* row, rowLayout) {
-        QObject* checkbox = row->findChild< QObject* >("flagCheckBox");
-        QObject* flag = row->findChild< QObject* >("flagName");
-        
-        if (checkbox->property("checked").toBool()) {
-            flags.append( flag->property("text").toString() );
-        }
-    }
+    QStringList flags = checkedFlags(MODIFY_PARTITION);
     
     m_manager->registerAction( new Actions::ModifyPartitionAction(partition, label, flags) );
     afterClosedDialog();
@@ -410,12 +394,64 @@ void PartitionerView::removeTableDialogClosed(bool accepted, QString disk)
     afterClosedDialog();
 }
 
+void PartitionerView::createPartitionDialogClosed(bool accepted,
+                                                  qreal size,
+                                                  qreal sb,
+                                                  QString type,
+                                                  QString label,
+                                                  QString filesystem,
+                                                  QString containerName,
+                                                  QString disk)
+{
+    if (!accepted) {
+        return;
+    }
+    
+    VolumeTree diskTree = m_manager->diskTree(disk);
+    DeviceModified* container = diskTree.searchDevice(containerName);
+
+    qulonglong byteSize = (qulonglong)size * 1024 * 1024;
+    qulonglong spaceBefore = (qulonglong)sb * 1024 * 1024;
+    qulonglong offset = container->offset() + spaceBefore;
+    bool extended = (type == "Extended");
+    Filesystem fs( filesystem );
+    QStringList flags = checkedFlags(CREATE_PARTITION);
+    
+    CreatePartitionAction* action = new CreatePartitionAction(disk, offset, byteSize, extended, fs, label, flags);
+    m_manager->registerAction(action);
+    
+    afterClosedDialog();
+}
+
 void PartitionerView::afterClosedDialog()
 {
     m_treeView->setProperty("currentIndex", 0);
     
     setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
     setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
+}
+
+/*
+ * Read which checkboxes are set in the flags list.
+ * TODO: discover how to sent this information via QML directly.
+ */
+QStringList PartitionerView::checkedFlags(const QString& dialog)
+{
+    QStringList flags;
+    
+    QObject* flagsList = m_dialogs[dialog]->findChild< QObject* >("flagsList");
+    QList< QObject* > rowLayout = flagsList->findChildren< QObject* >("row");
+    
+    foreach (QObject* row, rowLayout) {
+        QObject* checkbox = row->findChild< QObject* >("flagCheckBox");
+        QObject* flag = row->findChild< QObject* >("flagName");
+        
+        if (checkbox->property("checked").toBool()) {
+            flags.append( flag->property("text").toString() );
+        }
+    }
+    
+    return flags;
 }
 
 #include "partitionerview.moc"

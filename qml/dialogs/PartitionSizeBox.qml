@@ -18,6 +18,9 @@ Grid
     rows: 3
     spacing: 5
     
+    property real pSize: partitionSize.value
+    property real bSize: spaceBefore.value
+    
     /*
      * Sets initial values for all the spinboxes.
      * TODO: use better names as the semantics can change for different dialogs.

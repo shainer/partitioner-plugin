@@ -21,19 +21,19 @@ Grid
     property real pSize: partitionSize.value
     property real bSize: spaceBefore.value
     
-    /*
-     * Sets initial values for all the spinboxes.
-     * TODO: use better names as the semantics can change for different dialogs.
-     */
-    function init(fs)
+    /* Sets initial values for spinboxes */
+    function init(bvalue, value, avalue)
     {
-        var freespace = parseFloat(fs);
+        var spaceSum = bvalue + value + avalue;
         
-        spaceBefore.maximum = freespace - 1;
-        spaceAfter.maximum = freespace - 1;
-        partitionSize.maximum = freespace;
+        spaceBefore.maximum = spaceSum - 1;
+        spaceAfter.maximum = spaceSum - 1;
+        partitionSize.maximum = spaceSum;
         
-        partitionSize.setValue(freespace, false);
+        spaceBefore.setValue(bvalue, false);
+        partitionSize.setValue(value, false);
+        spaceAfter.setValue(avalue, false);
+        
     }
     
     SpacedText { text: "Free space before (MB): "; spacerHeight: 10 }

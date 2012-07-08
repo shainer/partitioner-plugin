@@ -75,6 +75,7 @@ private:
     
     VolumeManager* m_manager;
     QStringList m_diskList;
+    
     QString m_currentDisk; /* the currently selected disk */
     QString m_currentDevice;
     
@@ -84,9 +85,10 @@ private:
     void setActionList();
     void setDiskTree(const QString &);
     
+    QObject* getTreeView();
+    
     QStringList checkedFlags(const QString &);
     QStringList acceptedPartitionTypes(const VolumeTree &, Devices::DeviceModified *);
-    QObject* getTreeView();
     void afterClosedDialog();
 };
 

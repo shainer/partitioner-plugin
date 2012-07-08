@@ -70,6 +70,7 @@ PartitionerView::PartitionerView(QObject* parent)
     m_dialogs.insert(CREATE_PARTITION_TABLE, dialogSet->findChild< QObject* >("createTableDialog"));
     m_dialogs.insert(REMOVE_PARTITION_TABLE, dialogSet->findChild< QObject* >("removeTableDialog"));
     m_dialogs.insert(CREATE_PARTITION, dialogSet->findChild< QObject* >("createPartitionDialog"));
+    m_dialogs.insert(RESIZE_PARTITION, dialogSet->findChild< QObject* >("resizePartitionDialog"));
     
     /* Receive changes from Solid */
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
@@ -231,7 +232,7 @@ void PartitionerView::doSelectedDiskChanged(QString newDisk)
 
 /* This is called when the selected device changes, or when a new disk tree is being displayed */
 void PartitionerView::doSelectedDeviceChanged(QString devName)
-{
+{    
     VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
     DeviceModified* device = diskTree.searchDevice(devName);
     m_currentDevice = devName;
@@ -316,6 +317,23 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         /* Possible types (logical, primary or extended) for the new partition */
         QStringList types = acceptedPartitionTypes(diskTree, device);
         dialog->setProperty("acceptedPartitionTypes", types);
+    }
+    else if (actionName == RESIZE_PARTITION) {
+        DeviceModified* leftDevice = diskTree.leftDevice(device);
+        DeviceModified* rightDevice = diskTree.rightDevice(device);
+        double beforeSize = 0.0f;
+        double afterSize = 0.0f;
+        
+        if (leftDevice && leftDevice->deviceType() == DeviceModified::FreeSpaceDevice) {
+            beforeSize = (double)(leftDevice->size());
+        }
+        if (rightDevice && rightDevice->deviceType() == DeviceModified::FreeSpaceDevice) {
+            afterSize = (double)(rightDevice->size());
+        }
+        
+        dialog->setProperty("before", beforeSize);
+        dialog->setProperty("size", (double)(device->size()));
+        dialog->setProperty("after", afterSize);
     }
     else if (actionName == UNDO) {
         undoDialogClosed();

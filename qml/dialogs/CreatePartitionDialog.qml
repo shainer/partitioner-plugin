@@ -39,7 +39,7 @@ Rectangle
         /* Sets the items in the two comboboxes */
         typesComboBox.items = acceptedPartitionTypes;
         fsComboBox.items = supportedFilesystems;
-        partitionSize.init(createPartitionDialog.freespace); /* sets the initial values for the spinboxes */
+        partitionSize.init(0.0, createPartitionDialog.freespace, 0.0); /* sets the initial values for the spinboxes */
         
         parent.width = 450;
         parent.height = 270;
@@ -139,7 +139,7 @@ Rectangle
                     createPartitionDialog.hide();
                     createPartitionDialog.closed(true,
                                                  partitionSize.pSize,
-                                                 partitionSize.bsize,
+                                                 partitionSize.bSize,
                                                  typesComboBox.currentText,
                                                  labelInput.text,
                                                  fsComboBox.currentText,

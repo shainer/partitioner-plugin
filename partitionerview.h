@@ -78,6 +78,7 @@ private:
     
     QString m_currentDisk; /* the currently selected disk */
     QString m_currentDevice;
+    bool isDialogOpen; /* block all selection changes when a dialog is currently open */
     
     void setButtonBox();
     void setGenericButtonsState();
@@ -86,7 +87,6 @@ private:
     void setDiskTree(const QString &);
     
     QObject* getTreeView();
-    
     QStringList checkedFlags(const QString &);
     QStringList acceptedPartitionTypes(const VolumeTree &, Devices::DeviceModified *);
     void afterClosedDialog();

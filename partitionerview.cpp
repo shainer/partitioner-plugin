@@ -44,6 +44,7 @@ PartitionerView::PartitionerView(QObject* parent)
     : QObject(parent)
     , m_context( m_view.rootContext() )
     , m_manager( VolumeManager::instance() )
+    , isDialogOpen(false)
 {
     /* Sets all the models relative to the QML views */
     setButtonBox();
@@ -226,13 +227,21 @@ void PartitionerView::doDiskTreeChanged(QString newTree)
 /* If the user selected a new disk for displaying, changes the TreeView data. */
 void PartitionerView::doSelectedDiskChanged(QString newDisk)
 {
+    if (isDialogOpen) {
+        return;
+    }
+    
     m_currentDisk = newDisk;
     setDiskTree(newDisk);
 }
 
 /* This is called when the selected device changes, or when a new disk tree is being displayed */
 void PartitionerView::doSelectedDeviceChanged(QString devName)
-{    
+{
+    if (isDialogOpen) {
+        return;
+    }
+    
     VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
     DeviceModified* device = diskTree.searchDevice(devName);
     m_currentDevice = devName;
@@ -269,6 +278,7 @@ void PartitionerView::doSelectedDeviceChanged(QString devName)
 void PartitionerView::doActionButtonClicked(QString actionName)
 {
     m_boxmodel.disableAllButtons();
+    isDialogOpen = true;
     
     QObject* dialog = m_dialogs[actionName];
     VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
@@ -462,6 +472,7 @@ void PartitionerView::redoDialogClosed()
 void PartitionerView::afterClosedDialog()
 {
     m_treeView->setProperty("currentIndex", 0);
+    isDialogOpen = false;
     
     setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
     setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */

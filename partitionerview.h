@@ -43,12 +43,20 @@ public slots:
     void doSelectedDeviceChanged(QString);
     void doActionButtonClicked(QString);
     
+    /*
+     * These slots are called when the correspondent dialog is closed, to gather information and request the right
+     * action from the library. For better readability, a slot is added here even when the action doesn't open any dialog,
+     * and is called as a normal function right after the button is pressed.
+     */
     void formatDialogClosed(bool, QString, QString);
     void modifyDialogClosed(bool, QString, QString);
     void removePartitionDialogClosed(QString);
     void createTableDialogClosed(bool, QString, QString);
     void removeTableDialogClosed(bool, QString);
     void createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString, QString);
+
+    void undoDialogClosed();
+    void redoDialogClosed();
     
 private:
     QDeclarativeView m_view;

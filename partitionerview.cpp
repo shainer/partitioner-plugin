@@ -317,6 +317,12 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         QStringList types = acceptedPartitionTypes(diskTree, device);
         dialog->setProperty("acceptedPartitionTypes", types);
     }
+    else if (actionName == UNDO) {
+        undoDialogClosed();
+    }
+    else if (actionName == REDO) {
+        redoDialogClosed();
+    }
     
     QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, m_currentDevice));
 }
@@ -420,6 +426,18 @@ void PartitionerView::createPartitionDialogClosed(bool accepted,
     CreatePartitionAction* action = new CreatePartitionAction(disk, offset, byteSize, extended, fs, label, flags);
     m_manager->registerAction(action);
     
+    afterClosedDialog();
+}
+
+void PartitionerView::undoDialogClosed()
+{
+    m_manager->undo();
+    afterClosedDialog();
+}
+
+void PartitionerView::redoDialogClosed()
+{
+    m_manager->redo();
     afterClosedDialog();
 }
 

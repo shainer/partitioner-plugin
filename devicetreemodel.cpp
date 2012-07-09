@@ -46,7 +46,7 @@ void DeviceTreeModel::setDisk(const VolumeTree& disk)
 
 int DeviceTreeModel::rowCount(const QModelIndex& parent) const
 {
-    return m_disk.allDevices().size();
+    return m_disk.allDevices(false).size();
 }
 
 QVariant DeviceTreeModel::data(const QModelIndex& index, int role) const
@@ -55,7 +55,7 @@ QVariant DeviceTreeModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
     
-    DeviceModified* device = m_disk.allDevices().at( index.row() );
+    DeviceModified* device = m_disk.allDevices(false).at( index.row() );
     
     switch (role) {
         case DeviceDescription:

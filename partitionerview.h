@@ -59,6 +59,9 @@ public slots:
     void undoDialogClosed();
     void redoDialogClosed();
     
+    void afterCancelClicked();
+    void afterOkClicked();
+    
 private:
     QDeclarativeView m_view;
     QDeclarativeContext* m_context;
@@ -90,8 +93,7 @@ private:
     QObject* getTreeView();
     QStringList checkedFlags(const QString &);
     QStringList acceptedPartitionTypes(const VolumeTree &, Devices::DeviceModified *);
-    void afterCancelClicked();
-    void afterOkClicked();
+    void checkErrors();
 };
 
 #endif

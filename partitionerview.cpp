@@ -73,6 +73,7 @@ PartitionerView::PartitionerView(QObject* parent)
     m_dialogs.insert(REMOVE_PARTITION_TABLE, dialogSet->findChild< QObject* >("removeTableDialog"));
     m_dialogs.insert(CREATE_PARTITION, dialogSet->findChild< QObject* >("createPartitionDialog"));
     m_dialogs.insert(RESIZE_PARTITION, dialogSet->findChild< QObject* >("resizePartitionDialog"));
+    m_dialogs.insert("error", dialogSet->findChild< QObject* >("errorDialog"));
     
     /* Receive changes from Solid */
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
@@ -93,6 +94,7 @@ PartitionerView::PartitionerView(QObject* parent)
                       SIGNAL(closed(bool, qreal, qreal, QString, QString, QString, QString, QString)),
                       SLOT(createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString, QString)));
     QObject::connect( m_dialogs[RESIZE_PARTITION], SIGNAL(closed(bool, qreal, qreal, QString)), SLOT(resizeDialogClosed(bool, qreal, qreal, QString)));
+    QObject::connect( m_dialogs["error"], SIGNAL(closed()), SLOT(afterOkClicked()));
     
     m_view.show();
 }
@@ -337,14 +339,14 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         double afterSize = 0.0f;
         
         if (leftDevice && leftDevice->deviceType() == DeviceModified::FreeSpaceDevice) {
-            beforeSize = (double)(leftDevice->size());
+            beforeSize = (double)(leftDevice->size()) / 1024.0f / 1024.0f;
         }
         if (rightDevice && rightDevice->deviceType() == DeviceModified::FreeSpaceDevice) {
-            afterSize = (double)(rightDevice->size());
+            afterSize = (double)(rightDevice->size()) / 1024.04 / 1024.04;
         }
         
         dialog->setProperty("before", beforeSize);
-        dialog->setProperty("size", (double)(device->size()));
+        dialog->setProperty("size", (double)(device->size()) / 1024.0f / 1024.0f);
         dialog->setProperty("after", afterSize);
     }
     else if (actionName == UNDO) {
@@ -389,6 +391,7 @@ void PartitionerView::formatDialogClosed(bool accepted, QString filesystem, QStr
     Filesystem fs(filesystem, flags);
     
     m_manager->registerAction( new Actions::FormatPartitionAction(partition, fs) );
+    checkErrors();
     afterOkClicked();
 }
 
@@ -402,12 +405,14 @@ void PartitionerView::modifyDialogClosed(bool accepted, QString label, QString p
     QStringList flags = checkedFlags(MODIFY_PARTITION);
     
     m_manager->registerAction( new Actions::ModifyPartitionAction(partition, label, flags) );
+    checkErrors();
     afterOkClicked();
 }
 
 void PartitionerView::removePartitionDialogClosed(QString partition)
 {
     m_manager->registerAction( new Actions::RemovePartitionAction(partition) );
+    checkErrors();
     afterOkClicked();
 }
 
@@ -424,6 +429,7 @@ void PartitionerView::createTableDialogClosed(bool accepted, QString scheme, QSt
     
     PartitionTableScheme schemeEnum = (scheme == "gpt") ? GPTScheme : MBRScheme;
     m_manager->registerAction( new Actions::CreatePartitionTableAction(disk, schemeEnum) );
+    checkErrors();
     afterOkClicked();
 }
 
@@ -435,6 +441,7 @@ void PartitionerView::removeTableDialogClosed(bool accepted, QString disk)
     }
     
     m_manager->registerAction( new Actions::RemovePartitionTableAction(disk) );
+    checkErrors();
     afterOkClicked();
 }
 
@@ -464,7 +471,7 @@ void PartitionerView::createPartitionDialogClosed(bool accepted,
     
     CreatePartitionAction* action = new CreatePartitionAction(disk, offset, byteSize, extended, fs, label, flags);
     m_manager->registerAction(action);
-    
+    checkErrors();
     afterOkClicked();
 }
 
@@ -481,6 +488,8 @@ void PartitionerView::resizeDialogClosed(bool accepted, qreal size, qreal sb, QS
     qulonglong newSize = (qulonglong)size * 1024 * 1024;
     qulonglong newOffset = partition->offset();
     
+    qDebug() << partition->offset() << partition->size();
+    
     if (spaceBefore > 0) {
         DeviceModified* leftDevice = diskTree.leftDevice(partition);
         
@@ -492,7 +501,10 @@ void PartitionerView::resizeDialogClosed(bool accepted, qreal size, qreal sb, QS
         }
     }
     
+    qDebug() << newOffset << newSize;
+    
     m_manager->registerAction( new ResizePartitionAction(partitionName, newOffset, newSize) );
+    checkErrors();
     afterOkClicked();
 }
 
@@ -506,6 +518,17 @@ void PartitionerView::redoDialogClosed()
 {
     m_manager->redo();
     afterOkClicked();
+}
+
+/* Check if the latest action was successfully. Otherwise, show the error description in a dialog. */
+void PartitionerView::checkErrors()
+{
+    Utils::PartitioningError error = m_manager->error();
+    
+    if (error.type() != Utils::PartitioningError::None) {
+        QObject* errorDialog = m_dialogs["error"];        
+        QMetaObject::invokeMethod(errorDialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, error.description()));
+    }
 }
 
 void PartitionerView::afterCancelClicked()

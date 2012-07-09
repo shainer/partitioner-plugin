@@ -133,7 +133,8 @@ Rectangle
         {
             text: "Ok"
             
-            MouseArea {
+            MouseArea
+            {
                 anchors.fill: parent
                 onClicked: {                    
                     createPartitionDialog.hide();

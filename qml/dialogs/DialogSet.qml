@@ -70,4 +70,5 @@ Rectangle
     RemovePartitionTableDialog {}
     CreatePartitionDialog {}
     ResizePartitionDialog {}
+    ErrorDialog {}
 }

@@ -3,6 +3,7 @@
  * FIXME: fix the binding loop.
  */
 import Qt 4.7
+import "./styles/default"
 
 Item
 {

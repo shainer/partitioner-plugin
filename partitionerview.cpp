@@ -59,7 +59,7 @@ PartitionerView::PartitionerView(QObject* parent)
     m_context->setContextProperty("flagsModel", &m_flagsModel);
     
     plugin.registerTypes("ApplicationWidgets");
-    m_view.setSource(QUrl::fromLocalFile("../../install/plugin/qml/main.qml")); // TODO: change this
+    m_view.setSource(QUrl::fromLocalFile("/etc/qml-plugin/main.qml"));
     m_view.setResizeMode(QDeclarativeView::SizeViewToRootObject);
     
     m_rootObject = m_view.rootObject();

@@ -10,6 +10,7 @@
 */
 import QtQuick 1.0
 import ApplicationWidgets 1.0
+import "../widgets"
 
 Rectangle
 {

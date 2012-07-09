@@ -11,6 +11,7 @@
    version 2 of the License, or (at your option) any later version.
 */
 import QtQuick 1.0
+import "../widgets"
 
 Grid
 {

@@ -101,7 +101,7 @@ PartitionerView::PartitionerView(QObject* parent)
     QObject::connect( m_dialogs[RESIZE_PARTITION], SIGNAL(closed(bool, qreal, qreal, QString)), SLOT(resizeDialogClosed(bool, qreal, qreal, QString)));
     QObject::connect( m_dialogs[APPLY], SIGNAL(closed(bool)), SLOT(applyActions(bool)));
     QObject::connect( m_dialogs["error"], SIGNAL(closed()), SLOT(afterOkClicked()));
-    QObject::connect( m_dialogs["applyDialog"], SIGNAL(closed()), SLOT(afterOkClicked()));
+    QObject::connect( m_dialogs["applyDialog"], SIGNAL(closed()), SLOT(applyDialogClosed()));
     
     m_view.show();
 }
@@ -595,12 +595,21 @@ void PartitionerView::afterOkClicked()
     setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
 }
 
+void PartitionerView::applyDialogClosed()
+{
+    isDialogOpen = false;    
+    doSelectedDiskChanged(m_currentDisk);
+    
+    m_manager->clearActions();
+    setActionList();
+    setGenericButtonsState();
+}
+
 void PartitionerView::reportProgress(int nextAction)
 {
     QObject* dialog = m_dialogs["applyDialog"];
     
     if (nextAction < m_registeredActions.size()) {
-        qDebug() << "next" << m_registeredActions.at(nextAction)->description();
         dialog->setProperty("currentAction", m_registeredActions.at(nextAction)->description());
         dialog->setProperty("currentActionIndex", nextAction);
     }

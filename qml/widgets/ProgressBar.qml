@@ -15,9 +15,9 @@ Rectangle
 {
     id: progressBar
 
-    property real maximum: 100
-    property real minimum: 0
-    property real value: 0
+    property int maximum: 100
+    property int minimum: 0
+    property int value: 0
     property int multiplier: 6 /* costant value to use for dimensions */
     
     onValueChanged: {

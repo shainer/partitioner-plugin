@@ -58,10 +58,13 @@ public slots:
 
     void undoDialogClosed();
     void redoDialogClosed();
+    void applyActions(bool);
     
     void afterCancelClicked();
     void afterOkClicked();
     
+    void reportProgress(int);
+    void executionError(QString);
 private:
     QDeclarativeView m_view;
     QDeclarativeContext* m_context;
@@ -78,6 +81,7 @@ private:
     QHash< QString, QObject* > m_dialogs;
     
     VolumeManager* m_manager;
+    QList< Actions::Action* > m_registeredActions;
     QStringList m_diskList;
     
     QString m_currentDisk; /* the currently selected disk */

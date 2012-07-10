@@ -18,6 +18,7 @@ include_directories( ${QT_INCLUDES}
 set(test_SRCS
     main.cpp
     partitionerview.cpp
+    executerthread.cpp
 
     buttonboxmodel.cpp
     devicetreemodel.cpp
@@ -45,6 +46,7 @@ install(FILES buttonboxmodel.h
               qmlkdeicon.h
               pluginregister.h
               buttonnames.h
+              executerthread.h
         DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/include)
 
 install(FILES QWidgets/qmldir

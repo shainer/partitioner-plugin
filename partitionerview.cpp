@@ -15,6 +15,7 @@
 #include <pluginregister.h>
 #include <buttonnames.h>
 #include <qmlkdeicon.h>
+#include "executerthread.h"
 
 #include <solid/partitioner/actions/resizepartitionaction.h>
 #include <solid/partitioner/actions/createpartitionaction.h>
@@ -35,6 +36,7 @@
 #include <qdeclarative.h>
 #include <kicontheme.h>
 #include <k3icon_p.h>
+#include <QEventLoop>
 
 using namespace Solid::Partitioner;
 using namespace Solid::Partitioner::Actions;
@@ -55,8 +57,9 @@ PartitionerView::PartitionerView(QObject* parent)
     setDiskTree( m_diskList.first() ); /* the disk initially displayed is the first in the list */
     setIconDatabase();
 
-    /* This model is initial empty, but it's okay because it won't be displayed right now. */
+    /* These models are initially empty, but it's okay because they won't be displayed right now. */
     m_context->setContextProperty("flagsModel", &m_flagsModel);
+    m_context->setContextProperty("registeredActions", QVariant::fromValue( QStringList() ));
     
     plugin.registerTypes("ApplicationWidgets");
     m_view.setSource(QUrl::fromLocalFile("/etc/qml-plugin/main.qml"));
@@ -73,6 +76,8 @@ PartitionerView::PartitionerView(QObject* parent)
     m_dialogs.insert(REMOVE_PARTITION_TABLE, dialogSet->findChild< QObject* >("removeTableDialog"));
     m_dialogs.insert(CREATE_PARTITION, dialogSet->findChild< QObject* >("createPartitionDialog"));
     m_dialogs.insert(RESIZE_PARTITION, dialogSet->findChild< QObject* >("resizePartitionDialog"));
+    m_dialogs.insert(APPLY, dialogSet->findChild< QObject* >("applyConfirmationDialog"));
+    m_dialogs.insert("applyDialog", dialogSet->findChild< QObject* >("applyDialog"));
     m_dialogs.insert("error", dialogSet->findChild< QObject* >("errorDialog"));
     
     /* Receive changes from Solid */
@@ -94,7 +99,9 @@ PartitionerView::PartitionerView(QObject* parent)
                       SIGNAL(closed(bool, qreal, qreal, QString, QString, QString, QString, QString)),
                       SLOT(createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString, QString)));
     QObject::connect( m_dialogs[RESIZE_PARTITION], SIGNAL(closed(bool, qreal, qreal, QString)), SLOT(resizeDialogClosed(bool, qreal, qreal, QString)));
+    QObject::connect( m_dialogs[APPLY], SIGNAL(closed(bool)), SLOT(applyActions(bool)));
     QObject::connect( m_dialogs["error"], SIGNAL(closed()), SLOT(afterOkClicked()));
+    QObject::connect( m_dialogs["applyDialog"], SIGNAL(closed()), SLOT(afterOkClicked()));
     
     m_view.show();
 }
@@ -163,7 +170,7 @@ void PartitionerView::setActionList()
 {
     QStringList actionDescriptions;
     
-    foreach (Action* action, VolumeManager::instance()->registeredActions()) {
+    foreach (Action* action, m_manager->registeredActions()) {
         actionDescriptions << action->description();
     }
     
@@ -287,6 +294,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     QObject* dialog = m_dialogs[actionName];
     VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
     DeviceModified* device = diskTree.searchDevice(m_currentDevice);
+    bool showDialog = true;
     
     /* FIXME: set supported filesystems properly */
     m_flagsModel.reset();
@@ -303,8 +311,8 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         }
     }
     else if (actionName == REMOVE_PARTITION) { /* this doesn't need a dialog, so we directly call the "dialog closed" slot */
+        showDialog = false;
         removePartitionDialogClosed(m_currentDevice);
-        return;
     }
     else if (actionName == CREATE_PARTITION_TABLE) {
         dialog->setProperty("currentScheme", diskTree.disk()->partitionTableScheme());
@@ -350,13 +358,26 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         dialog->setProperty("after", afterSize);
     }
     else if (actionName == UNDO) {
+        showDialog = false;
         undoDialogClosed();
     }
     else if (actionName == REDO) {
+        showDialog = false;
         redoDialogClosed();
     }
+    else if (actionName == APPLY) {
+        QStringList actionDescriptions;
+        
+        foreach (Action* action, m_manager->registeredActions()) {
+            actionDescriptions << action->description();
+        }
+        
+        m_context->setContextProperty("registeredActions", QVariant::fromValue(actionDescriptions));
+    }
     
-    QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, m_currentDevice));
+    if (showDialog) {
+        QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, m_currentDevice));
+    }
 }
 
 QStringList PartitionerView::acceptedPartitionTypes(const VolumeTree& diskTree, Devices::DeviceModified* freeSpace)
@@ -520,6 +541,26 @@ void PartitionerView::redoDialogClosed()
     afterOkClicked();
 }
 
+void PartitionerView::applyActions(bool confirmed)
+{
+    if (!confirmed) {
+        afterCancelClicked();
+        return;
+    }
+    
+    m_registeredActions = m_manager->registeredActions();
+    QObject* dialog = m_dialogs["applyDialog"];
+    
+    dialog->setProperty("actionCount", m_registeredActions.size());
+    dialog->setProperty("currentAction", m_registeredActions.first()->description());
+    QMetaObject::invokeMethod(dialog, "show");
+    
+    ExecuterThread* thread = new ExecuterThread;
+    QObject::connect(thread, SIGNAL(sendProgressChanged(int)), SLOT(reportProgress(int)), Qt::DirectConnection);
+    QObject::connect(thread, SIGNAL(sendExecutionError(QString)), SLOT(executionError(QString)), Qt::DirectConnection);
+    thread->start();
+}
+
 /* Check if the latest action was successfully. Otherwise, show the error description in a dialog. */
 void PartitionerView::checkErrors()
 {
@@ -552,6 +593,27 @@ void PartitionerView::afterOkClicked()
     
     setActionList(); /* change the list of registered actions in the GUI (if the previous method was successful) */
     setGenericButtonsState(); /* some non-action related buttons are affected by how many actions we registered */
+}
+
+void PartitionerView::reportProgress(int nextAction)
+{
+    QObject* dialog = m_dialogs["applyDialog"];
+    
+    if (nextAction < m_registeredActions.size()) {
+        qDebug() << "next" << m_registeredActions.at(nextAction)->description();
+        dialog->setProperty("currentAction", m_registeredActions.at(nextAction)->description());
+        dialog->setProperty("currentActionIndex", nextAction);
+    }
+    else {
+        dialog->setProperty("currentAction", "Finished successfully!");
+        dialog->setProperty("currentActionIndex", m_registeredActions.size());
+    }
+}
+
+void PartitionerView::executionError(QString err)
+{
+    QObject* dialog = m_dialogs["applyDialog"];
+    dialog->setProperty("currentAction", "There were errors executing this action");
 }
 
 /*

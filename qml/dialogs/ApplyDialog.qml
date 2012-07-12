@@ -26,14 +26,6 @@ Rectangle
     property string currentAction
     property int currentActionIndex: 0
     
-    onCurrentActionChanged: {
-        console.log("current action changed");
-    }
-    
-    onCurrentActionIndexChanged: {
-        console.log("current index changed");
-    }
-    
     signal closed
     
     function onProgressChanged(text, index)

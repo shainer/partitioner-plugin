@@ -28,7 +28,7 @@ Rectangle
     property variant supportedFilesystems
     
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
-    signal closed(bool accepted, string filesystem, string partition)
+    signal closed(bool accepted, string filesystem, string label, string uid, string gid, string partition)
     
     function show(partition)
     {
@@ -37,9 +37,9 @@ Rectangle
         formatDialog.opacity = 1;
         
         /* I need to set this here because the property supportedFilesystems has undefined type before explicit setting */
-        combobox.items = supportedFilesystems;
+        fsComboBox.items = supportedFilesystems;
         
-        parent.width = 250;
+        parent.width = 500;
         parent.height = 150;
     }
     
@@ -49,14 +49,20 @@ Rectangle
         formatDialog.opacity = 0;
     }
     
+    function activateInputs(labelActive, ownerActive)
+    {
+        labelInput.active = labelActive;
+        uidInput.active = ownerActive;
+        gidInput.active = ownerActive;
+    }
+            
     Text
     {
         anchors.top: parent.top
         anchors.left: parent.left
-        anchors.topMargin: 10
-        anchors.leftMargin: 6
-        
+        anchors.margins: 6
         text: "Select filesystem: "
+        
         font
         {
             family: "Helvetica"
@@ -64,27 +70,64 @@ Rectangle
         }
     }
     
-    /* TODO: for now it holds dummy data. I'll connect a model later. */
     ComboBox
     {
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.margins: 10
-        
-        width: 100
-        
-        id: combobox
+        id: fsComboBox
         objectName: "fsComboBox"
-    }
-    
-    /* TODO: see before. The displayed flags/label edit should change according to the current filesystem. */
-    FlagsList
-    {
-        id: flagsList
-        objectName: "flagsList"
         
         anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.leftMargin: 6
+        anchors.topMargin: 30
+        
+        width: 130
+    }
+    
+    Rectangle
+    {
+        width: 1
+        height: 130
+        color: "black"
+        
         anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
+    
+    Column
+    {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.margins: 6
+        spacing: 6
+        
+        Text
+        {
+            font
+            {
+                family: "Helvetica"
+                pointSize: 12
+            }
+            
+            text: "Filesystem properties: "
+        }
+
+        InputLine
+        {
+            id: labelInput
+            displayedText: "Label: "
+        }
+        
+        InputLine
+        {
+            id: uidInput
+            displayedText: "Owner's UID: "
+        }
+        
+        InputLine
+        {
+            id: gidInput
+            displayedText: "Owner's GID: "
+        }
     }
         
     Row
@@ -102,7 +145,12 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     formatDialog.hide();
-                    formatDialog.closed(true, combobox.currentText, formatDialog.partition);
+                    formatDialog.closed(true,
+                                        fsComboBox.currentText,
+                                        labelInput.inputText,
+                                        uidInput.inputText,
+                                        gidInput.inputText,
+                                        formatDialog.partition);
                 }
             }
         }
@@ -116,7 +164,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     formatDialog.hide();
-                    formatDialog.closed(false, combobox.currentText, formatDialog.partition);
+                    formatDialog.closed(false, "", "", "", "", formatDialog.partition);
                 }
             }
         }

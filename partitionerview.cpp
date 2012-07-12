@@ -15,8 +15,9 @@
 #include <pluginregister.h>
 #include <buttonnames.h>
 #include <qmlkdeicon.h>
-#include "executerthread.h"
+#include <executerthread.h>
 
+#include <solid/partitioner/utils/filesystemutils.h>
 #include <solid/partitioner/actions/resizepartitionaction.h>
 #include <solid/partitioner/actions/createpartitionaction.h>
 #include <solid/partitioner/actions/removepartitiontableaction.h>
@@ -34,9 +35,6 @@
 
 #include <QDeclarativeContext>
 #include <qdeclarative.h>
-#include <kicontheme.h>
-#include <k3icon_p.h>
-#include <QEventLoop>
 
 using namespace Solid::Partitioner;
 using namespace Solid::Partitioner::Actions;
@@ -91,7 +89,9 @@ PartitionerView::PartitionerView(QObject* parent)
     QObject::connect( m_rootObject, SIGNAL(actionButtonClicked(QString)), this, SLOT(doActionButtonClicked(QString)) );
     
     /* Operations to be performed when the dialog is closed (i.e. register the correspondent action, if necessary) */
-    QObject::connect( m_dialogs[FORMAT_PARTITION], SIGNAL(closed(bool, QString, QString)), SLOT(formatDialogClosed(bool, QString, QString)) );
+    QObject::connect( m_dialogs[FORMAT_PARTITION],
+                      SIGNAL(closed(bool, QString, QString, QString, QString, QString)),
+                      SLOT(formatDialogClosed(bool, QString, QString, QString, QString, QString)) );
     QObject::connect( m_dialogs[MODIFY_PARTITION], SIGNAL(closed(bool, QString, QString)), SLOT(modifyDialogClosed(bool, QString, QString)) );
     QObject::connect( m_dialogs[CREATE_PARTITION_TABLE], SIGNAL(closed(bool, QString, QString)), SLOT(createTableDialogClosed(bool, QString, QString)));
     QObject::connect( m_dialogs[REMOVE_PARTITION_TABLE], SIGNAL(closed(bool, QString)), SLOT(removeTableDialogClosed(bool, QString)));
@@ -285,6 +285,17 @@ void PartitionerView::doSelectedDeviceChanged(QString devName)
     m_boxmodel.setButtonsEnabled(disabled, false);
 }
 
+void PartitionerView::doSelectedFsChanged(QString filesystem)
+{
+    QObject* changeFilesystemDialog = m_dialogs[FORMAT_PARTITION];
+    Utils::FilesystemUtils* fsUtils = Utils::FilesystemUtils::instance();
+    
+    bool isLabelSupported = fsUtils->supportsLabel(filesystem);
+    bool isOwnershipSupported = fsUtils->filesystemProperty(filesystem, "supports_unix_owners").toBool();
+    
+    QMetaObject::invokeMethod(changeFilesystemDialog, "activateInputs", Q_ARG(QVariant, isLabelSupported), Q_ARG(QVariant, isOwnershipSupported));
+}
+
 /* When an action button is clicked, shows the right dialog and sets its initial information when required */
 void PartitionerView::doActionButtonClicked(QString actionName)
 {
@@ -296,7 +307,6 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     DeviceModified* device = diskTree.searchDevice(m_currentDevice);
     bool showDialog = true;
     
-    /* FIXME: set supported filesystems properly */
     m_flagsModel.reset();
 
     if (actionName == MODIFY_PARTITION) {
@@ -318,13 +328,20 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         dialog->setProperty("currentScheme", diskTree.disk()->partitionTableScheme());
     }
     else if (actionName == FORMAT_PARTITION) {
-        dialog->setProperty("supportedFilesystems", QStringList() << "ntfs" << "vfat" << "unformatted");
+        QStringList supportedFilesystems = Utils::FilesystemUtils::instance()->supportedFilesystems();
+        dialog->setProperty("supportedFilesystems", supportedFilesystems);
+        QObject* combobox = dialog->findChild< QObject* >("fsComboBox");
+
+        doSelectedFsChanged( supportedFilesystems.first() );
+        QObject::connect(combobox, SIGNAL(currentTextChanged(QString)), SLOT(doSelectedFsChanged(QString)));
     }
     else if (actionName == CREATE_PARTITION) {
         dialog->setProperty("disk", m_currentDisk);
         
         /* Shows filesystems you can format the new partition with (unformatted means "none") */
-        dialog->setProperty("supportedFilesystems", QStringList() << "ntfs" << "vfat" << "unformatted");
+        QStringList supportedFilesystems = Utils::FilesystemUtils::instance()->supportedFilesystems();
+        supportedFilesystems << "unformatted";
+        dialog->setProperty("supportedFilesystems", supportedFilesystems);
 
         /* Shows flags you can set for this partition */
         Disk* disk = diskTree.disk();
@@ -401,15 +418,21 @@ QStringList PartitionerView::acceptedPartitionTypes(const VolumeTree& diskTree, 
     return types;
 }
 
-void PartitionerView::formatDialogClosed(bool accepted, QString filesystem, QString partition)
+void PartitionerView::formatDialogClosed(bool accepted,
+                                         QString filesystem,
+                                         QString fsLabel,
+                                         QString ownerUid,
+                                         QString ownerGid,
+                                         QString partition)
 { 
     if (!accepted) {
         afterCancelClicked();
         return;
     }
     
-    QStringList flags = checkedFlags(FORMAT_PARTITION);
-    Filesystem fs(filesystem, flags);
+    int uid = (ownerUid.isEmpty()) ? -1 : ownerUid.toInt();
+    int gid = (ownerGid.isEmpty()) ? -1 : ownerGid.toInt();
+    Filesystem fs(filesystem, fsLabel, uid, gid);
     
     m_manager->registerAction( new Actions::FormatPartitionAction(partition, fs) );
     checkErrors();

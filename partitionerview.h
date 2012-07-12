@@ -41,6 +41,7 @@ public slots:
     void doDiskTreeChanged(QString);
     void doSelectedDiskChanged(QString);
     void doSelectedDeviceChanged(QString);
+    void doSelectedFsChanged(QString);
     void doActionButtonClicked(QString);
     
     /*
@@ -48,7 +49,7 @@ public slots:
      * action from the library. For better readability, a slot is added here even when the action doesn't open any dialog,
      * and is called as a normal function right after the button is pressed.
      */
-    void formatDialogClosed(bool, QString, QString);
+    void formatDialogClosed(bool, QString, QString, QString, QString, QString);
     void modifyDialogClosed(bool, QString, QString);
     void removePartitionDialogClosed(QString);
     void createTableDialogClosed(bool, QString, QString);

@@ -103,12 +103,12 @@ Rectangle
         Row
         {
             spacing: 5
+
+            SpacedText { text: "Filesystem: "; spacerHeight: 5 }
+            ComboBox   { id: fsComboBox; width: 130 }
             
             SpacedText { text: "Partition type: "; spacerHeight: 5 }
             ComboBox   { id: typesComboBox; width: 120 }
-
-            SpacedText { text: "Filesystem: "; spacerHeight: 5 }
-            ComboBox   { id: fsComboBox; width: 100 }
         }
     }
 

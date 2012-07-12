@@ -42,26 +42,24 @@ Rectangle
         dialogSet.state = "invisible";
         errorDialog.opacity = 0;
     }
-    
-    Row
+        
+    Image
     {
         anchors.top: parent.top
+        anchors.topMargin: 5
+        anchors.horizontalCenter: parent.horizontalCenter
+        source: dialogIcon.iconPath("dialog-error")
+        
+        Icon { id: dialogIcon }
+    }
+    
+    Text
+    {
+        anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
-        anchors.margins: 10
-        spacing: 5
         
-        Image
-        {
-            source: dialogIcon.iconPath("dialog-error")
-            
-            Icon { id: dialogIcon }
-        }
-        
-        Text
-        {
-            id: errorMessage
-            font.pointSize: 9
-        }
+        id: errorMessage
+        font.pointSize: 9
     }
     
     GenericButton

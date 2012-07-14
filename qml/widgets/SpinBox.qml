@@ -24,6 +24,7 @@ Item
                      input.height + topMargin + bottomMargin)
 
     property real value: 0.0
+    property real actualValue: 0.0
     property real maximum: 99
     property real minimum: 0.0
     property real singlestep: 1
@@ -57,8 +58,10 @@ Item
     {
         var oldval = value
         value += singlestep
+        actualValue += singlestep
         
-        if (value > maximum) {
+        if (actualValue > maximum) {
+            actualValue = maximum
             value = maximum
         }
             
@@ -70,6 +73,7 @@ Item
     {
         var oldval = value
         value -= singlestep
+        actualValue -= singlestep
         
         if (value < minimum) {
             value = minimum
@@ -94,6 +98,7 @@ Item
             newval = minimum
         
         value = newval
+        actualValue += (newval - oldval)
         input.text = value
         
         if (sendSignal) {

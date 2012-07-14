@@ -19,8 +19,8 @@ Grid
     rows: 3
     spacing: 5
     
-    property real pSize: partitionSize.value
-    property real bSize: spaceBefore.value
+    property real pSize: partitionSize.actualValue
+    property real bSize: spaceBefore.actualValue
     
     /* Sets initial values for spinboxes */
     function init(bvalue, value, avalue)
@@ -31,10 +31,14 @@ Grid
         spaceAfter.maximum = spaceSum - 1;
         partitionSize.maximum = spaceSum;
         
-        spaceBefore.setValue(bvalue, false);
-        partitionSize.setValue(value, false);
-        spaceAfter.setValue(avalue, false);
+        spaceBefore.setValue(bvalue.toFixed(1), false);
+        spaceBefore.actualValue = bvalue;
         
+        partitionSize.setValue(value.toFixed(1), false);
+        partitionSize.actualValue = value;
+        
+        spaceAfter.setValue(avalue.toFixed(1), false);
+        spaceAfter.actualValue = avalue;
     }
     
     SpacedText { text: "Free space before (MB): "; spacerHeight: 10 }

@@ -644,6 +644,7 @@ void PartitionerView::reportProgress(int nextAction)
 
 void PartitionerView::executionError(QString err)
 {
+    Q_UNUSED(err) /* FIXME: maybe print this in the dialog */
     QObject* dialog = m_dialogs["applyDialog"];
     dialog->setProperty("currentAction", "There were errors executing this action");
 }

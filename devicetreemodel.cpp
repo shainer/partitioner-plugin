@@ -46,6 +46,7 @@ void DeviceTreeModel::setDisk(const VolumeTree& disk)
 
 int DeviceTreeModel::rowCount(const QModelIndex& parent) const
 {
+    Q_UNUSED(parent)
     return m_disk.allDevices(false).size();
 }
 

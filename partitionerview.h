@@ -95,6 +95,7 @@ private:
     void setDiskList();
     void setActionList();
     void setDiskTree(const QString &);
+    void setWindowSize();
     
     QObject* getTreeView();
     QStringList checkedFlags(const QString &);

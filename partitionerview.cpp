@@ -35,6 +35,8 @@
 
 #include <QDeclarativeContext>
 #include <qdeclarative.h>
+#include <QApplication>
+#include <QDesktopWidget>
 
 using namespace Solid::Partitioner;
 using namespace Solid::Partitioner::Actions;
@@ -64,6 +66,7 @@ PartitionerView::PartitionerView(QObject* parent)
     m_view.setResizeMode(QDeclarativeView::SizeViewToRootObject);
     
     m_rootObject = m_view.rootObject();
+    setWindowSize();
     QObject* dialogSet = m_rootObject->findChild< QObject* >("dialogSet");
     m_treeView = getTreeView();
     
@@ -109,6 +112,16 @@ PartitionerView::PartitionerView(QObject* parent)
 PartitionerView::~PartitionerView()
 {
     m_context->deleteLater();
+}
+
+void PartitionerView::setWindowSize()
+{
+    int width = QApplication::desktop()->width();
+    int height = QApplication::desktop()->height();
+
+    /* The window size will be the same as the screen size */
+    m_rootObject->setProperty("width", width);
+    m_rootObject->setProperty("height", height);
 }
 
 /* I'm deeply sorry for this. */

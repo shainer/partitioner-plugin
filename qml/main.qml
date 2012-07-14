@@ -14,8 +14,6 @@ import "./dialogs" as Dialogs
 Rectangle
 {
     id: window
-    width: 1300
-    height: 700
     color: "#DDDDDD"
     
     /*

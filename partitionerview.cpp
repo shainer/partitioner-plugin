@@ -37,6 +37,7 @@
 #include <qdeclarative.h>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <unistd.h>
 
 using namespace Solid::Partitioner;
 using namespace Solid::Partitioner::Actions;
@@ -85,6 +86,7 @@ PartitionerView::PartitionerView(QObject* parent)
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
     QObject::connect( m_manager, SIGNAL(deviceRemoved(QString)), this, SLOT(doDeviceRemoved(QString)) );
     QObject::connect( m_manager, SIGNAL(diskChanged(QString)), this, SLOT(doDiskTreeChanged(QString)) );
+    QObject::connect( m_manager, SIGNAL(accessibilityChanged(bool, const QString &)), this, SLOT(reportAccessibility(bool, const QString &)) );
     
     /* Receive changes from the QML interface */
     QObject::connect( m_rootObject, SIGNAL(selectedDiskChanged(QString)), this, SLOT(doSelectedDiskChanged(QString)) );
@@ -210,11 +212,19 @@ void PartitionerView::setDiskTree(const QString& diskName)
     m_context->setContextProperty("deviceTreeModel", &m_treeModel);
 }
 
+void PartitionerView::reportAccessibility(bool a, const QString& udi)
+{
+    Q_UNUSED(a)
+    Q_UNUSED(udi)
+    m_treeModel.readDataAgain();
+}
+
 /* When a new device is added to the system, refreshes the disk list in case it was a disk */
 void PartitionerView::doDeviceAdded(VolumeTree newTree)
 {
     Q_UNUSED(newTree)
     setDiskList();
+    m_treeModel.readDataAgain(); /* in case it was another kind of device, e.g. a partition, read the tree again */
 }
 
 /*
@@ -234,6 +244,8 @@ void PartitionerView::doDeviceRemoved(QString device)
     if (currentDisk->name() == device) {
         setDiskTree( m_diskList.last() );
     }
+    
+    m_treeModel.readDataAgain();
 }
 
 /*
@@ -657,7 +669,7 @@ void PartitionerView::reportProgress(int nextAction)
 
 void PartitionerView::executionError(QString err)
 {
-    Q_UNUSED(err) /* FIXME: maybe print this in the dialog */
+    qDebug() << err;
     QObject* dialog = m_dialogs["applyDialog"];
     dialog->setProperty("currentAction", "There were errors executing this action");
 }

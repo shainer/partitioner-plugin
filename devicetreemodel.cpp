@@ -50,6 +50,13 @@ int DeviceTreeModel::rowCount(const QModelIndex& parent) const
     return m_disk.allDevices(false).size();
 }
 
+/* Something unspecified changed in the meantime */
+void DeviceTreeModel::readDataAgain()
+{
+    emit beginResetModel();
+    emit endResetModel();
+}
+
 QVariant DeviceTreeModel::data(const QModelIndex& index, int role) const
 {
     if (index.row() < 0 || index.row() > rowCount()) {
@@ -84,8 +91,7 @@ QVariant DeviceTreeModel::data(const QModelIndex& index, int role) const
             if (device->deviceType() == DeviceModified::PartitionDevice) {
                 Partition* partition = dynamic_cast< Partition* >(device);
                 return partition->mountFile();
-            }
-            
+            }            
             return QString();
         }
         

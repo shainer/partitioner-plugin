@@ -67,6 +67,7 @@ public slots:
     
     void reportProgress(int);
     void executionError(QString);
+    void reportAccessibility(bool, const QString &);
 private:
     QDeclarativeView m_view;
     QDeclarativeContext* m_context;

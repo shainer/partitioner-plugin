@@ -36,6 +36,7 @@ public:
     
     VolumeTree currentDisk() const;
     void setDisk(const VolumeTree &);
+    void readDataAgain();
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex &, int role = Qt::DisplayRole) const;
     

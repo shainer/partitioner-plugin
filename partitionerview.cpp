@@ -648,7 +648,6 @@ void PartitionerView::applyDialogClosed()
     isDialogOpen = false;    
     doSelectedDiskChanged(m_currentDisk);
     
-    m_manager->clearActions();
     setActionList();
     setGenericButtonsState();
 }

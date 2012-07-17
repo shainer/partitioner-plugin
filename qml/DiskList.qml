@@ -13,6 +13,8 @@ import QtQuick 1.1
 Rectangle
 {
     id: diskList
+    objectName: "diskList"
+    
     width: (window.width * 1) / 4
     height: (window.height * 4) / 7
     
@@ -25,8 +27,9 @@ Rectangle
     ListView
     {
         id: diskListView
-        model: diskModel
+        objectName: "diskListView"
         
+        model: diskModel
         highlight: SelectionRectangle {}
         
         anchors.fill: parent

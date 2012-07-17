@@ -17,7 +17,13 @@ using namespace Solid::Partitioner;
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-    PartitionerView pview;
+    
+    QString selectedDevice;
+    if (argc != 0) {
+        selectedDevice = QString::fromAscii( argv[1] );
+    }
+    
+    PartitionerView view(selectedDevice);
     
     return app.exec();
 }

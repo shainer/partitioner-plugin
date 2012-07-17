@@ -44,32 +44,34 @@ using namespace Solid::Partitioner::Actions;
 using namespace Solid::Partitioner::Utils;
 using namespace Solid::Partitioner::Devices;
 
-PartitionerView::PartitionerView(QObject* parent)
+PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     : QObject(parent)
     , m_context( m_view.rootContext() )
     , m_manager( VolumeManager::instance() )
     , isDialogOpen(false)
 {
-    /* Sets all the models relative to the QML views */
-    setButtonBox();
-    setGenericButtonsState();
-    setDiskList();
-    setActionList();
-    setDiskTree( m_diskList.first() ); /* the disk initially displayed is the first in the list */
-    setIconDatabase();
-
-    /* These models are initially empty, but it's okay because they won't be displayed right now. */
-    m_context->setContextProperty("flagsModel", &m_flagsModel);
-    m_context->setContextProperty("registeredActions", QVariant::fromValue( QStringList() ));
-    
+    /* Registers our custom plugin to give QML access to some particular objects and widgets we created in C++. */
     plugin.registerTypes("ApplicationWidgets");
     m_view.setSource(QUrl::fromLocalFile("/etc/qml-plugin/main.qml"));
     m_view.setResizeMode(QDeclarativeView::SizeViewToRootObject);
     
     m_rootObject = m_view.rootObject();
-    setWindowSize();
     QObject* dialogSet = m_rootObject->findChild< QObject* >("dialogSet");
     m_treeView = getTreeView();
+    m_diskView = getDiskView();
+    setWindowSize();
+    
+    /* Sets all the models and their initial state for the QML view */
+    setButtonBox();
+    setGenericButtonsState();
+    setDiskList();
+    setActionList();
+    setInitialSelection(selectedDevice);
+    setIconDatabase();
+
+    /* These models are initially empty, but it's okay because they won't be displayed right now. */
+    m_context->setContextProperty("flagsModel", &m_flagsModel);
+    m_context->setContextProperty("registeredActions", QVariant::fromValue( QStringList() ));
     
     /* Add all dialog objects for later use */
     m_dialogs.insert(FORMAT_PARTITION, dialogSet->findChild< QObject* >("formatDialog"));
@@ -108,6 +110,7 @@ PartitionerView::PartitionerView(QObject* parent)
     QObject::connect( m_dialogs["error"], SIGNAL(closed()), SLOT(afterOkClicked()));
     QObject::connect( m_dialogs["applyDialog"], SIGNAL(closed()), SLOT(applyDialogClosed()));
     
+    /* Finally, the GUI is opened! */
     m_view.show();
 }
 
@@ -135,7 +138,63 @@ QObject* PartitionerView::getTreeView()
     return deviceTree->findChild< QObject* >("deviceTreeView");
 }
 
-/* This sets the information needed to display the button box on top. By default, all buttons are clickable. */
+QObject* PartitionerView::getDiskView()
+{
+    QObject* column = m_rootObject->findChild< QObject* >("mainColumn");
+    QObject* row = column->findChild< QObject* >("mainRow");
+    QObject* diskList = row->findChild< QObject* >("diskList");
+    return diskList->findChild< QObject* >("diskListView");
+}
+
+/*
+ * When called from a Dolphin plugin, the selected device automatically becomes the selected device on our view.
+ * This has to be done "manually" setting the currentIndex property.
+ */
+void PartitionerView::setInitialSelection(const QString& selectedDevice)
+{
+    QString diskName = findDiskWithDevice(selectedDevice);
+    QList<VolumeTree> trees = m_manager->allDiskTrees().values();
+    int diskIndex = 0, deviceIndex = 0;
+    
+    /* Finds the index of the disk the device is located into */
+    foreach (VolumeTree tree, trees) {
+        if (tree.disk()->name() == diskName) {
+            break;
+        }
+        
+        diskIndex++;
+    }
+    
+    /* Finds the index of the device inside the disk */
+    foreach (DeviceModified* diskDevice, m_manager->diskTree(diskName).allDevices(false)) {
+        if (diskDevice->name() == selectedDevice) {
+            break;
+        }
+        
+        deviceIndex++;
+    }
+
+    setDiskTree(diskName);
+    m_diskView->setProperty("currentIndex", diskIndex);
+    doSelectedDeviceChanged(selectedDevice);
+    m_treeView->setProperty("currentIndex", deviceIndex);
+}
+
+/* Utility function which returns the disk name containing a given device */
+QString PartitionerView::findDiskWithDevice(const QString& devName)
+{
+    QMap< QString, VolumeTree > trees = m_manager->allDiskTrees();
+    
+    foreach (const QString& key, trees.keys()) {
+        if (trees[key].searchDevice(devName)) {
+            return key;
+        }
+    }
+    
+    return QString();
+}
+
+/* Sets the information needed to display the button box on top. By default, all buttons are clickable. */
 void PartitionerView::setButtonBox()
 {
     m_boxmodel.addTuple( ButtonBoxTuple(CREATE_PARTITION, "list-add") );
@@ -152,7 +211,7 @@ void PartitionerView::setButtonBox()
     m_context->setContextProperty("buttonBoxModel", &m_boxmodel);
 }
 
-/* This sets the enabled state of all non action-related buttons: undo, redo and apply */
+/* Enables all the non action-related buttons: undo, redo and apply */
 void PartitionerView::setGenericButtonsState()
 {
     QStringList disabled, enabled;
@@ -180,7 +239,7 @@ void PartitionerView::setGenericButtonsState()
     m_boxmodel.setButtonsEnabled(disabled, false);
 }
 
-/* This sets the model for the list of registered actions */
+/* Sets the model for the list of registered actions */
 void PartitionerView::setActionList()
 {
     QStringList actionDescriptions;
@@ -192,14 +251,14 @@ void PartitionerView::setActionList()
     m_context->setContextProperty("actionModel", QVariant::fromValue(actionDescriptions));
 }
 
-/* This sets the model for the view that displays the currently available disks */
+/* Sets the model for the view that displays the currently available disks */
 void PartitionerView::setDiskList()
 {
     m_diskList = VolumeManager::instance()->allDiskTrees().keys();
     m_context->setContextProperty("diskModel", QVariant::fromValue(m_diskList));
 }
 
-/* This sets the model for the TreeView, displaying the layout of the specifying disk */
+/* Sets the model for the TreeView, displaying the layout of the specifying disk */
 void PartitionerView::setDiskTree(const QString& diskName)
 {
     VolumeTree diskTree = m_manager->diskTree( diskName );
@@ -216,7 +275,7 @@ void PartitionerView::reportAccessibility(bool a, const QString& udi)
 {
     Q_UNUSED(a)
     Q_UNUSED(udi)
-    m_treeModel.readDataAgain();
+    m_treeModel.readDataAgain(); /* simply resets the model */
 }
 
 /* When a new device is added to the system, refreshes the disk list in case it was a disk */
@@ -251,9 +310,8 @@ void PartitionerView::doDeviceRemoved(QString device)
 /*
  * This is called when a disk layout changes for whatever reason: updates the model.
  * 
- * NOTE: the correspondent signal is sent when a registered action changed the disk's layout;
- * given that to register an action on a device you must select the device, the modified tree is always
- * the one currently displayed in the TreeView. So we update that one.
+ * NOTE: the correspondent signal is sent when a registered action, or a call to undo or redo, changed the disk's layout;
+ * thus the modified tree is always the one currently displayed in the TreeView, and we update that one.
  */
 void PartitionerView::doDiskTreeChanged(QString newTree)
 {
@@ -310,6 +368,12 @@ void PartitionerView::doSelectedDeviceChanged(QString devName)
     m_boxmodel.setButtonsEnabled(disabled, false);
 }
 
+/*
+ * This is called when the user selects a new filesystem in the filesystem combobox of the Format partition dialog.
+ * Other text inputs the dialog displays are relative to the currently selected filesystem: for example there's a text input which
+ * allows the user to insert a filesystem label, but not all filesystems support that.
+ * So we enable or disable the widget according to the current selection.
+ */
 void PartitionerView::doSelectedFsChanged(QString filesystem)
 {
     QObject* changeFilesystemDialog = m_dialogs[FORMAT_PARTITION];
@@ -422,6 +486,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     }
 }
 
+/* Inspects the current situation and determines whether we can create a new partition as logical, extended or primary. */
 QStringList PartitionerView::acceptedPartitionTypes(const VolumeTree& diskTree, Devices::DeviceModified* freeSpace)
 {
     DeviceModified* parent = diskTree.parentDevice(freeSpace);

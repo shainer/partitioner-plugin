@@ -1,5 +1,5 @@
 /*
- * Main class that displays and handles events from QML GUI: header
+ * Main class that displays and handles events from QML GUI
 
    Copyright (C) 2012 Lisa Vitolo <shainer@chakra-project.org>
 
@@ -32,10 +32,16 @@ class PartitionerView : public QObject
     Q_OBJECT
     
 public:
-    explicit PartitionerView(QObject* parent = 0);
+    /*
+     * The first parameter is used when this program is invoked from Dolphin. It gives us the UDI of the device that was
+     * selected on the Dolphin panel when this application was called, so the view can put it as the selected device
+     * immediately.
+     */
+    explicit PartitionerView(const QString &, QObject* parent = 0);
     virtual ~PartitionerView();
     
 public slots:
+    /* This slots catch various changes, either from the system and from the GUI. */
     void doDeviceAdded(VolumeTree);
     void doDeviceRemoved(QString);
     void doDiskTreeChanged(QString);
@@ -62,11 +68,18 @@ public slots:
     void redoDialogClosed();
     void applyActions(bool);
     
+    /* These reset the status of the GUI after a dialog has been closed, considering the button pressed. */
     void afterCancelClicked();
     void afterOkClicked();
     
+    /* These slots are used while applying changes on the system. */
     void reportProgress(int);
     void executionError(QString);
+    
+    /*
+     * This special slot reports when the accessibility status of a volume changes (i.e. it was mounted or umounted), forcing
+     * the current model to reset and read again all the data. 
+     */
     void reportAccessibility(bool, const QString &);
 private:
     QDeclarativeView m_view;
@@ -81,6 +94,7 @@ private:
     /* QML component objects */
     QGraphicsObject* m_rootObject;
     QObject* m_treeView;
+    QObject* m_diskView;
     QHash< QString, QObject* > m_dialogs;
     
     VolumeManager* m_manager;
@@ -88,7 +102,7 @@ private:
     QStringList m_diskList;
     
     QString m_currentDisk; /* the currently selected disk */
-    QString m_currentDevice;
+    QString m_currentDevice; /* the currently selected device */
     bool isDialogOpen; /* block all selection changes when a dialog is currently open */
     
     void setButtonBox();
@@ -96,9 +110,12 @@ private:
     void setDiskList();
     void setActionList();
     void setDiskTree(const QString &);
+    void setInitialSelection(const QString &);
     void setWindowSize();
+    QString findDiskWithDevice(const QString &);
     
     QObject* getTreeView();
+    QObject* getDiskView();
     QStringList checkedFlags(const QString &);
     QStringList acceptedPartitionTypes(const VolumeTree &, Devices::DeviceModified *);
     void checkErrors();

@@ -375,7 +375,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         }
         
         /* Available space in megabytes */
-        double freeSpaceMega = (double)device->size() / 1024.0f / 1024.0f;
+        double freeSpaceMega = (double)(device->size()) / 1024.0f / 1024.0f;
         dialog->setProperty("freespace", freeSpaceMega);
         
         /* Possible types (logical, primary or extended) for the new partition */

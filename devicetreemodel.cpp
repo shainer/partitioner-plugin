@@ -27,7 +27,7 @@ DeviceTreeModel::DeviceTreeModel(const VolumeTree& disk, QObject* parent)
     roles[DeviceLabel] = "deviceLabel";
     roles[DeviceMountPoint] = "deviceMountPoint";
     roles[DeviceFileSystem] = "deviceFileSystem";
-    roles[PartitionType] = "partitionType";
+    roles[ParentDeviceType] = "parentType";
     
     setRoleNames(roles);
 }
@@ -109,13 +109,12 @@ QVariant DeviceTreeModel::data(const QModelIndex& index, int role) const
             return QString();
         }
         
-        case PartitionType: {
-            if (device->deviceType() == DeviceModified::PartitionDevice) {
-                Partition* partition = dynamic_cast< Partition* >(device);
-                return partition->partitionType();
-            }
+        case ParentDeviceType: {
+            DeviceModified* parent = m_disk.parentDevice(device);
             
-            return Utils::UnusedPartition;
+            if (parent)
+                return parent->deviceType();
+            return DeviceModified::FreeSpaceDevice; /* it doesn't really matter what we return here */
         }
     }
     

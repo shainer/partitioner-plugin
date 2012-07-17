@@ -29,7 +29,7 @@ public:
         DeviceLabel,
         DeviceMountPoint,
         DeviceFileSystem,
-        PartitionType,
+        ParentDeviceType
     };
     
     explicit DeviceTreeModel(const VolumeTree& disk = VolumeTree(), QObject* parent = 0);

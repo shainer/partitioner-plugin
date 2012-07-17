@@ -73,7 +73,7 @@ Rectangle
                     color: "#00000000"
                     
                     height: 20
-                    width: if (partitionType == 2)
+                    width: if (parentType == 1)
                              40
                            else if (deviceType != 0)
                              20

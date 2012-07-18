@@ -50,6 +50,18 @@ PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     , m_manager( VolumeManager::instance() )
     , isDialogOpen(false)
 {
+    /* Sets all the models and their initial state for the QML view */
+    setButtonBox();
+    setGenericButtonsState();
+    setDiskList();
+    setActionList();
+    setDiskTree( m_diskList.last() );
+    setIconDatabase(); /* initializes the standard icons */
+
+    /* These models are initially empty, but it's okay because they won't be displayed right now. */
+    m_context->setContextProperty("flagsModel", &m_flagsModel);
+    m_context->setContextProperty("registeredActions", QVariant::fromValue( QStringList() ));
+    
     /* Registers our custom plugin to give QML access to some particular objects and widgets we created in C++. */
     plugin.registerTypes("ApplicationWidgets");
     m_view.setSource(QUrl::fromLocalFile("/etc/qml-plugin/main.qml"));
@@ -61,17 +73,13 @@ PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     m_diskView = getDiskView();
     setWindowSize();
     
-    /* Sets all the models and their initial state for the QML view */
-    setButtonBox();
-    setGenericButtonsState();
-    setDiskList();
-    setActionList();
-    setInitialSelection(selectedDevice);
-    setIconDatabase();
-
-    /* These models are initially empty, but it's okay because they won't be displayed right now. */
-    m_context->setContextProperty("flagsModel", &m_flagsModel);
-    m_context->setContextProperty("registeredActions", QVariant::fromValue( QStringList() ));
+    /*
+     * If an initial selection has been specified, sets it. Otherwise, the last disk on the list
+     * will be the one displayed (see before).
+     */
+    if (!selectedDevice.isEmpty()) {
+        setInitialSelection(selectedDevice);
+    }
     
     /* Add all dialog objects for later use */
     m_dialogs.insert(FORMAT_PARTITION, dialogSet->findChild< QObject* >("formatDialog"));

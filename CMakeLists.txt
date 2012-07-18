@@ -29,14 +29,13 @@ set(test_SRCS
     pluginregister.cpp
 )
 
-kde4_add_executable(dolphinPartitioner ${test_SRCS})
-target_link_libraries(dolphinPartitioner ${CMAKE_INSTALL_PREFIX}/lib/libsolid.so
-                                         ${QT_QTCORE_LIBRARY}
-                                         ${QT_QTGUI_LIBRARY}
-                           
-                                         ${QT_QTDECLARATIVE_LIBRARY}
-                                         ${KDE4_KIO_LIBRARY}
-                                         ${KDE4_UI_LIBRARY} )
+kde4_add_executable(dolphin-partitioner ${test_SRCS})
+target_link_libraries(dolphin-partitioner ${CMAKE_INSTALL_PREFIX}/lib/libsolid.so
+                                          ${QT_QTCORE_LIBRARY}
+                                          ${QT_QTGUI_LIBRARY}                           
+                                          ${QT_QTDECLARATIVE_LIBRARY}
+                                          ${KDE4_KIO_LIBRARY}
+                                          ${KDE4_UI_LIBRARY} )
 
 install(FILES buttonboxmodel.h
               devicetreemodel.h
@@ -52,6 +51,6 @@ install(FILES buttonboxmodel.h
 install(FILES QWidgets/qmldir
         DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/qml/QWidgets)
 
-install(TARGETS dolphinPartitioner ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS dolphin-partitioner ${INSTALL_TARGETS_DEFAULT_ARGS})
 
 add_subdirectory(qml)

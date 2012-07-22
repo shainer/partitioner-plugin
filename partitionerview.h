@@ -113,7 +113,10 @@ private:
     void setInitialSelection(const QString &);
     void setWindowSize();
     void manageSelections(bool);
+    
+    /* Device-related utilities */
     QString findDiskWithDevice(const QString &);
+    int findIndexOfDevice(const QString &);
     
     QObject* getTreeView();
     QObject* getDiskView();

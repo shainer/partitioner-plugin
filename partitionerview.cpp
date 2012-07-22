@@ -162,7 +162,7 @@ void PartitionerView::setInitialSelection(const QString& selectedDevice)
 {
     QString diskName = findDiskWithDevice(selectedDevice);
     QList<VolumeTree> trees = m_manager->allDiskTrees().values();
-    int diskIndex = 0, deviceIndex = 0;
+    int diskIndex = 0;
     
     /* Finds the index of the disk the device is located into */
     foreach (VolumeTree tree, trees) {
@@ -172,20 +172,33 @@ void PartitionerView::setInitialSelection(const QString& selectedDevice)
         
         diskIndex++;
     }
-    
-    /* Finds the index of the device inside the disk */
-    foreach (DeviceModified* diskDevice, m_manager->diskTree(diskName).allDevices(false)) {
-        if (diskDevice->name() == selectedDevice) {
-            break;
-        }
-        
-        deviceIndex++;
-    }
 
     setDiskTree(diskName);
     m_diskView->setProperty("currentIndex", diskIndex);
     doSelectedDeviceChanged(selectedDevice);
-    m_treeView->setProperty("currentIndex", deviceIndex);
+    m_treeView->setProperty("currentIndex", findIndexOfDevice(selectedDevice));
+}
+
+/*
+ * This finds the index of a given device inside the disk layout. The index is simply the position of the device
+ * inside the disk (device are sorted by initial offset). It's used when we need to set the currentIndex property of
+ * our tree view.
+ */
+int PartitionerView::findIndexOfDevice(const QString& devName)
+{
+    QString disk = findDiskWithDevice(devName);
+    VolumeTree diskTree = m_manager->diskTree(disk);
+    int index = 0;
+    
+    foreach (DeviceModified* device, diskTree.allDevices(false)) {
+        if (device->name() == devName) {
+            break;
+        }
+        
+        index++;
+    }
+    
+    return index;
 }
 
 /* Utility function which returns the disk name containing a given device */
@@ -496,7 +509,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
 }
 
 /*
- * Shows or hides the selection rectangles (they must be hidden while a dialog is open)
+ * Shows or hides the selection rectangles (they must be hidden while a dialog is open).
  */
 void PartitionerView::manageSelections(bool show)
 {
@@ -710,6 +723,14 @@ void PartitionerView::afterCancelClicked()
 {    
     isDialogOpen = false;
     manageSelections(false);
+
+    /*
+     * Restores the previous selection if it has been changed while the dialog was open.
+     * Unfortunately there isn't a way for stopping QML from accepting selection changes at all (for now I could
+     * only hide the highlight widget) so we do this manually.
+     */
+    m_diskView->setProperty("currentIndex", m_diskList.indexOf(m_currentDisk));
+    m_treeView->setProperty("currentIndex", findIndexOfDevice(m_currentDevice));
     doSelectedDeviceChanged(m_currentDevice);
 }
 
@@ -718,12 +739,16 @@ void PartitionerView::afterOkClicked()
     VolumeTree tree = m_manager->diskTree(m_currentDisk);
     DeviceModified* dev = tree.searchDevice(m_currentDevice);
     isDialogOpen = false;
+    
     manageSelections(false);
+    m_diskView->setProperty("currentIndex", m_diskList.indexOf(m_currentDisk));
     
     if (dev) {
         doSelectedDeviceChanged(m_currentDevice);
+        m_treeView->setProperty("currentIndex", findIndexOfDevice(m_currentDevice));
     }
     else {
+        /* if the selected device has been deleted, just fall back on the disk */
         m_treeView->setProperty("currentIndex", 0);
     }
     

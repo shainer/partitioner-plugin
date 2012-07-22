@@ -55,7 +55,7 @@ PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     setGenericButtonsState();
     setDiskList();
     setActionList();
-    setDiskTree( m_diskList.last() );
+    setDiskTree( m_diskList.first() );
     setIconDatabase(); /* initializes the standard icons */
 
     /* These models are initially empty, but it's okay because they won't be displayed right now. */

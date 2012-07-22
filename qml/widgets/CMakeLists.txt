@@ -1,9 +1,9 @@
 install(DIRECTORY ./
-        DESTINATION /etc/qml-plugin/widgets
+        DESTINATION /etc/dolphin-partitioner/widgets
         FILES_MATCHING PATTERN "*.qml"
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 install(DIRECTORY ./images
-        DESTINATION /etc/qml-plugin/widgets
+        DESTINATION /etc/dolphin-partitioner/widgets
         FILES_MATCHING PATTERN "*.png"
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

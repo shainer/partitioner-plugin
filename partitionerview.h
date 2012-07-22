@@ -112,6 +112,7 @@ private:
     void setDiskTree(const QString &);
     void setInitialSelection(const QString &);
     void setWindowSize();
+    void manageSelections(bool);
     QString findDiskWithDevice(const QString &);
     
     QObject* getTreeView();

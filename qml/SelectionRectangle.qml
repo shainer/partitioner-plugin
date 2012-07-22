@@ -13,6 +13,7 @@ import QtQuick 1.1
 Rectangle
 {
     id: selectionRectangle
+    objectName: "selectionRectangle"
     
     color: "lightsteelblue"
     smooth: true

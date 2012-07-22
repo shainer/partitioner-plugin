@@ -398,6 +398,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
 {
     m_boxmodel.disableAllButtons();
     isDialogOpen = true;
+    manageSelections(true);
     
     QObject* dialog = m_dialogs[actionName];
     VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
@@ -492,6 +493,18 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     if (showDialog) {
         QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, m_currentDevice));
     }
+}
+
+/*
+ * Shows or hides the selection rectangles (they must be hidden while a dialog is open)
+ */
+void PartitionerView::manageSelections(bool show)
+{
+    QObject* treeSelectionRectangle = m_treeView->findChild< QObject* >("selectionRectangle");
+    QObject* diskSelectionRectangle = m_diskView->findChild< QObject* >("selectionRectangle");
+    
+    treeSelectionRectangle->setProperty("opacity", (show) ? 0 : 1);
+    diskSelectionRectangle->setProperty("opacity", (show) ? 0 : 1);
 }
 
 /* Inspects the current situation and determines whether we can create a new partition as logical, extended or primary. */
@@ -696,6 +709,7 @@ void PartitionerView::checkErrors()
 void PartitionerView::afterCancelClicked()
 {    
     isDialogOpen = false;
+    manageSelections(false);
     doSelectedDeviceChanged(m_currentDevice);
 }
 
@@ -704,6 +718,7 @@ void PartitionerView::afterOkClicked()
     VolumeTree tree = m_manager->diskTree(m_currentDisk);
     DeviceModified* dev = tree.searchDevice(m_currentDevice);
     isDialogOpen = false;
+    manageSelections(false);
     
     if (dev) {
         doSelectedDeviceChanged(m_currentDevice);

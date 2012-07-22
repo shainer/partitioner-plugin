@@ -64,7 +64,7 @@ PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     
     /* Registers our custom plugin to give QML access to some particular objects and widgets we created in C++. */
     plugin.registerTypes("ApplicationWidgets");
-    m_view.setSource(QUrl::fromLocalFile("/etc/qml-plugin/main.qml"));
+    m_view.setSource(QUrl::fromLocalFile("/etc/dolphin-partitioner/main.qml"));
     m_view.setResizeMode(QDeclarativeView::SizeViewToRootObject);
     
     m_rootObject = m_view.rootObject();

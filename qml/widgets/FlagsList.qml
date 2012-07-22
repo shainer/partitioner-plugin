@@ -10,7 +10,6 @@
 */
 
 import QtQuick 1.1
-import "../widgets"
 
 Item {
     id: flagsList

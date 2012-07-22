@@ -35,8 +35,6 @@ Rectangle
         
         anchors.fill: parent
         anchors.margins: 6
-        
-        onCurrentItemChanged: window.selectedDeviceChanged(model[currentIndex].deviceName)
     }
     
     Component

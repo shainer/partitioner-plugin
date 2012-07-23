@@ -24,6 +24,7 @@ Rectangle
     
     property int actionCount
     property string currentAction
+    property string actionColor: "black"
     property int currentActionIndex: 0
     
     signal closed
@@ -57,6 +58,7 @@ Rectangle
         
         font.pointSize: 9
         font.bold: true
+        color: parent.actionColor
         text: applyDialog.currentAction
     }
     

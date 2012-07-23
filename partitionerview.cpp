@@ -700,6 +700,7 @@ void PartitionerView::applyActions(bool confirmed)
     
     dialog->setProperty("actionCount", m_registeredActions.size());
     dialog->setProperty("currentAction", m_registeredActions.first()->description());
+    dialog->setProperty("actionColor", "black");
     QMetaObject::invokeMethod(dialog, "show");
     
     ExecuterThread* thread = new ExecuterThread;
@@ -781,9 +782,12 @@ void PartitionerView::reportProgress(int nextAction)
 
 void PartitionerView::executionError(QString err)
 {
-    qDebug() << err;
     QObject* dialog = m_dialogs["applyDialog"];
-    dialog->setProperty("currentAction", "There were errors executing this action");
+    QStringList lineList = err.split("\n");
+    QString errorMessage = lineList.at( lineList.size() - 2 );
+    
+    dialog->setProperty("currentAction", errorMessage);
+    dialog->setProperty("actionColor", QString::fromAscii("red"));
 }
 
 /*

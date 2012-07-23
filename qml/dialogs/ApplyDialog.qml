@@ -26,13 +26,14 @@ Rectangle
     property string currentAction
     property string actionColor: "black"
     property int currentActionIndex: 0
+    property bool finished: false
     
     signal closed
     
-    function onProgressChanged(text, index)
-    {
-        applyDialog.currentAction = text;
-        applyDialog.currentActionIndex = index;
+    onFinishedChanged: {
+        if (finished) {
+            closeButton.enabled = true;
+        }
     }
     
     function show()
@@ -42,6 +43,9 @@ Rectangle
         
         parent.width = 800;
         parent.height = 100;
+        
+        closeButton.enabled = false;
+        finished = false;
     }
     
     function hide()
@@ -71,10 +75,14 @@ Rectangle
         anchors.verticalCenter: parent.verticalCenter
     }
     
+    
     GenericButton
     {
+        id: closeButton
         anchors.bottom: parent.bottom
         anchors.right: parent.right
+        anchors.margins: 3
+        
         text: "Close"
         
         MouseArea

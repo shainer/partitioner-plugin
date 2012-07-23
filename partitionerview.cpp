@@ -773,21 +773,25 @@ void PartitionerView::reportProgress(int nextAction)
     if (nextAction < m_registeredActions.size()) {
         dialog->setProperty("currentAction", m_registeredActions.at(nextAction)->description());
         dialog->setProperty("currentActionIndex", nextAction);
+        qDebug() << "nextAction" << nextAction;
     }
     else {
         dialog->setProperty("currentAction", "Finished successfully!");
         dialog->setProperty("currentActionIndex", m_registeredActions.size());
+        dialog->setProperty("finished", true);
     }
 }
 
 void PartitionerView::executionError(QString err)
 {
+    qDebug() << err;
     QObject* dialog = m_dialogs["applyDialog"];
     QStringList lineList = err.split("\n");
     QString errorMessage = lineList.at( lineList.size() - 2 );
     
     dialog->setProperty("currentAction", errorMessage);
     dialog->setProperty("actionColor", QString::fromAscii("red"));
+    dialog->setProperty("finished", true);
 }
 
 /*

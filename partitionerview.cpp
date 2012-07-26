@@ -787,7 +787,13 @@ void PartitionerView::executionError(QString err)
     qDebug() << err;
     QObject* dialog = m_dialogs["applyDialog"];
     QStringList lineList = err.split("\n");
-    QString errorMessage = lineList.at( lineList.size() - 2 );
+    QString errorMessage;
+    
+    if (lineList.size() >= 2) {
+        errorMessage = lineList.at( lineList.size() - 2 );
+    } else {
+        errorMessage = lineList.first();
+    }
     
     dialog->setProperty("currentAction", errorMessage);
     dialog->setProperty("actionColor", QString::fromAscii("red"));

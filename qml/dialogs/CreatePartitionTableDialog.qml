@@ -23,14 +23,12 @@ Rectangle
     height: parent.height
     opacity: 0
     
-    property string disk
     property string currentScheme
     property string newScheme
-    signal closed(bool accepted, string scheme, string disk)
+    signal closed(bool accepted, string scheme)
     
-    function show(disk)
+    function show()
     {
-        createTableDialog.disk = disk;
         dialogSet.state = "visible";
         createTableDialog.opacity = 1;
         
@@ -113,7 +111,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {                    
                     createTableDialog.hide();
-                    createTableDialog.closed(true, createTableDialog.newScheme, createTableDialog.disk);
+                    createTableDialog.closed(true, createTableDialog.newScheme);
                 }
             }
         }
@@ -128,7 +126,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     createTableDialog.hide();
-                    createTableDialog.closed(false, createTableDialog.newScheme, createTableDialog.disk);
+                    createTableDialog.closed(false, createTableDialog.newScheme);
                 }
             }
         }

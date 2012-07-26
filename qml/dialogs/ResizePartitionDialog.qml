@@ -22,17 +22,15 @@ Rectangle
     height: parent.height
     opacity: 0
     
-    property string partition /* this property must hold the partition considered for resizing */
     property real size
     property real before
     property real after
     
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
-    signal closed(bool accepted, real newSize, real spaceBefore, string partition)
+    signal closed(bool accepted, real newSize, real spaceBefore)
     
-    function show(partition)
+    function show()
     {
-        resizeDialog.partition = partition;
         dialogSet.state = "visible";
         resizeDialog.opacity = 1;
         
@@ -72,7 +70,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     resizeDialog.hide();
-                    resizeDialog.closed(true, partitionSizeBox.pSize, partitionSizeBox.bSize, resizeDialog.partition);
+                    resizeDialog.closed(true, partitionSizeBox.pSize, partitionSizeBox.bSize);
                 }
             }
         }
@@ -86,7 +84,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     resizeDialog.hide();
-                    resizeDialog.closed(false, 0.0, 0.0, resizeDialog.partition);
+                    resizeDialog.closed(false, 0.0, 0.0);
                 }
             }
         }

@@ -23,12 +23,10 @@ Rectangle
     height: parent.height
     opacity: 0
     
-    property string disk
-    signal closed(bool accepted, string disk)
+    signal closed(bool accepted)
     
-    function show(disk)
+    function show()
     {
-        removeTableDialog.disk = disk;
         dialogSet.state = "visible";
         removeTableDialog.opacity = 1;
         
@@ -76,7 +74,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {                    
                     removeTableDialog.hide();
-                    removeTableDialog.closed(true, removeTableDialog.disk);
+                    removeTableDialog.closed(true);
                 }
             }
         }
@@ -91,7 +89,7 @@ Rectangle
                 onClicked:
                 {
                     removeTableDialog.hide();
-                    removeTableDialog.closed(false, removeTableDialog.disk);
+                    removeTableDialog.closed(false);
                 }
             }
         }

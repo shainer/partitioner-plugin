@@ -55,13 +55,13 @@ public slots:
      * action from the library. For better readability, a slot is added here even when the action doesn't open any dialog,
      * and is called as a normal function right after the button is pressed.
      */
-    void formatDialogClosed(bool, QString, QString, QString, QString, QString);
-    void modifyDialogClosed(bool, QString, QString);
-    void removePartitionDialogClosed(QString);
-    void createTableDialogClosed(bool, QString, QString);
-    void removeTableDialogClosed(bool, QString);
-    void createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString, QString);
-    void resizeDialogClosed(bool, qreal, qreal, QString);
+    void formatDialogClosed(bool, QString, QString, QString, QString);
+    void modifyDialogClosed(bool, QString);
+    void removePartitionDialogClosed();
+    void createTableDialogClosed(bool, QString);
+    void removeTableDialogClosed(bool);
+    void createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString);
+    void resizeDialogClosed(bool, qreal, qreal);
     void applyDialogClosed();
 
     void undoDialogClosed();

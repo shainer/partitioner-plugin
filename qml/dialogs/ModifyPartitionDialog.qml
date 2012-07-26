@@ -24,14 +24,12 @@ Rectangle
 
     property string currentLabel
     property string scheme /* the partition table scheme: useful because MBR doesn't support labeled partitions, while GPT does */
-    property string partition /* this property must hold the partition to be modified */
     
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
-    signal closed(bool accepted, string label, string partition)
+    signal closed(bool accepted, string label)
     
-    function show(partition)
+    function show()
     {
-        modifyDialog.partition = partition;
         dialogSet.state = "visible";
         modifyDialog.opacity = 1;
         
@@ -110,7 +108,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     modifyDialog.hide();
-                    modifyDialog.closed(true, labelInput.text, modifyDialog.partition);
+                    modifyDialog.closed(true, labelInput.text);
                 }
             }
         }
@@ -124,7 +122,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     modifyDialog.hide();
-                    modifyDialog.closed(false, labelInput.text, modifyDialog.partition);
+                    modifyDialog.closed(false, labelInput.text);
                 }
             }
         }

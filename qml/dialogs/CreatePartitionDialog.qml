@@ -23,17 +23,15 @@ Rectangle
     height: parent.height
     opacity: 0
     
-    property string container /* the free space block that will contain the new partition */
-    property string disk
+    property string container /* the unique name of the free space block that will contain the new partition */
     property variant acceptedPartitionTypes /* whether the partition can be extended, logical, etc... */
     property variant supportedFilesystems
     property real freespace /* how many space is available for the partition in megabytes */
     
-    signal closed(bool accepted, real size, real spaceBefore, string type, string label, string filesystem, string container, string disk)
+    signal closed(bool accepted, real size, real spaceBefore, string type, string label, string filesystem, string container)
     
-    function show(container)
+    function show()
     {
-        createPartitionDialog.container = container;
         dialogSet.state = "visible";
         createPartitionDialog.opacity = 1;
                 
@@ -145,8 +143,7 @@ Rectangle
                                                  typesComboBox.currentText,
                                                  labelInput.text,
                                                  fsComboBox.currentText,
-                                                 createPartitionDialog.container,
-                                                 createPartitionDialog.disk);
+                                                 createPartitionDialog.container);
                 }
             }
         }
@@ -160,7 +157,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     createPartitionDialog.hide();
-                    createPartitionDialog.closed(false, 0.0, 0.0, "", "", "", "", "");
+                    createPartitionDialog.closed(false, 0.0, 0.0, "", "", "", "");
                 }
             }
         }

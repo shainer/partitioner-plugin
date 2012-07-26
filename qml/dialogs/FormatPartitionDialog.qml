@@ -24,15 +24,13 @@ Rectangle
     height: parent.height
     opacity: 0
     
-    property string partition /* this property must hold the partition considered for formatting */
     property variant supportedFilesystems
     
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
-    signal closed(bool accepted, string filesystem, string label, string uid, string gid, string partition)
+    signal closed(bool accepted, string filesystem, string label, string uid, string gid)
     
-    function show(partition)
+    function show()
     {
-        formatDialog.partition = partition;
         dialogSet.state = "visible";
         formatDialog.opacity = 1;
         
@@ -149,8 +147,7 @@ Rectangle
                                         fsComboBox.currentText,
                                         labelInput.inputText,
                                         uidInput.inputText,
-                                        gidInput.inputText,
-                                        formatDialog.partition);
+                                        gidInput.inputText);
                 }
             }
         }
@@ -164,7 +161,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     formatDialog.hide();
-                    formatDialog.closed(false, "", "", "", "", formatDialog.partition);
+                    formatDialog.closed(false, "", "", "", "");
                 }
             }
         }

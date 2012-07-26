@@ -105,15 +105,15 @@ PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     
     /* Operations to be performed when the dialog is closed (i.e. register the correspondent action, if necessary) */
     QObject::connect( m_dialogs[FORMAT_PARTITION],
-                      SIGNAL(closed(bool, QString, QString, QString, QString, QString)),
-                      SLOT(formatDialogClosed(bool, QString, QString, QString, QString, QString)) );
-    QObject::connect( m_dialogs[MODIFY_PARTITION], SIGNAL(closed(bool, QString, QString)), SLOT(modifyDialogClosed(bool, QString, QString)) );
-    QObject::connect( m_dialogs[CREATE_PARTITION_TABLE], SIGNAL(closed(bool, QString, QString)), SLOT(createTableDialogClosed(bool, QString, QString)));
-    QObject::connect( m_dialogs[REMOVE_PARTITION_TABLE], SIGNAL(closed(bool, QString)), SLOT(removeTableDialogClosed(bool, QString)));
+                      SIGNAL(closed(bool, QString, QString, QString, QString)),
+                      SLOT(formatDialogClosed(bool, QString, QString, QString, QString)) );
+    QObject::connect( m_dialogs[MODIFY_PARTITION], SIGNAL(closed(bool, QString)), SLOT(modifyDialogClosed(bool, QString)) );
+    QObject::connect( m_dialogs[CREATE_PARTITION_TABLE], SIGNAL(closed(bool, QString)), SLOT(createTableDialogClosed(bool, QString)));
+    QObject::connect( m_dialogs[REMOVE_PARTITION_TABLE], SIGNAL(closed(bool)), SLOT(removeTableDialogClosed(bool)));
     QObject::connect( m_dialogs[CREATE_PARTITION],
-                      SIGNAL(closed(bool, qreal, qreal, QString, QString, QString, QString, QString)),
-                      SLOT(createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString, QString)));
-    QObject::connect( m_dialogs[RESIZE_PARTITION], SIGNAL(closed(bool, qreal, qreal, QString)), SLOT(resizeDialogClosed(bool, qreal, qreal, QString)));
+                      SIGNAL(closed(bool, qreal, qreal, QString, QString, QString, QString)),
+                      SLOT(createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString)));
+    QObject::connect( m_dialogs[RESIZE_PARTITION], SIGNAL(closed(bool, qreal, qreal)), SLOT(resizeDialogClosed(bool, qreal, qreal)));
     QObject::connect( m_dialogs[APPLY], SIGNAL(closed(bool)), SLOT(applyActions(bool)));
     QObject::connect( m_dialogs["error"], SIGNAL(closed()), SLOT(afterOkClicked()));
     QObject::connect( m_dialogs["applyDialog"], SIGNAL(closed()), SLOT(applyDialogClosed()));
@@ -434,7 +434,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     }
     else if (actionName == REMOVE_PARTITION) { /* this doesn't need a dialog, so we directly call the "dialog closed" slot */
         showDialog = false;
-        removePartitionDialogClosed(m_currentDevice);
+        removePartitionDialogClosed();
     }
     else if (actionName == CREATE_PARTITION_TABLE) {
         dialog->setProperty("currentScheme", diskTree.disk()->partitionTableScheme());
@@ -448,7 +448,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         QObject::connect(combobox, SIGNAL(currentTextChanged(QString)), SLOT(doSelectedFsChanged(QString)));
     }
     else if (actionName == CREATE_PARTITION) {
-        dialog->setProperty("disk", m_currentDisk);
+        dialog->setProperty("container", device->name());
         
         /* Shows filesystems you can format the new partition with (unformatted means "none") */
         QStringList supportedFilesystems = Utils::FilesystemUtils::instance()->supportedFilesystems();
@@ -505,7 +505,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     }
     
     if (showDialog) {
-        QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, m_currentDevice));
+        QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection);
     }
 }
 
@@ -547,8 +547,7 @@ void PartitionerView::formatDialogClosed(bool accepted,
                                          QString filesystem,
                                          QString fsLabel,
                                          QString ownerUid,
-                                         QString ownerGid,
-                                         QString partition)
+                                         QString ownerGid)
 { 
     if (!accepted) {
         afterCancelClicked();
@@ -559,12 +558,12 @@ void PartitionerView::formatDialogClosed(bool accepted,
     int gid = (ownerGid.isEmpty()) ? -1 : ownerGid.toInt();
     Filesystem fs(filesystem, fsLabel, uid, gid);
     
-    m_manager->registerAction( new Actions::FormatPartitionAction(partition, fs) );
+    m_manager->registerAction( new Actions::FormatPartitionAction(m_currentDevice, fs) );
     checkErrors();
     afterOkClicked();
 }
 
-void PartitionerView::modifyDialogClosed(bool accepted, QString label, QString partition)
+void PartitionerView::modifyDialogClosed(bool accepted, QString label)
 {    
     if (!accepted) {
         afterCancelClicked();
@@ -573,19 +572,19 @@ void PartitionerView::modifyDialogClosed(bool accepted, QString label, QString p
     
     QStringList flags = checkedFlags(MODIFY_PARTITION);
     
-    m_manager->registerAction( new Actions::ModifyPartitionAction(partition, label, flags) );
+    m_manager->registerAction( new Actions::ModifyPartitionAction(m_currentDevice, label, flags) );
     checkErrors();
     afterOkClicked();
 }
 
-void PartitionerView::removePartitionDialogClosed(QString partition)
+void PartitionerView::removePartitionDialogClosed()
 {
-    m_manager->registerAction( new Actions::RemovePartitionAction(partition) );
+    m_manager->registerAction( new Actions::RemovePartitionAction(m_currentDevice) );
     checkErrors();
     afterOkClicked();
 }
 
-void PartitionerView::createTableDialogClosed(bool accepted, QString scheme, QString disk)
+void PartitionerView::createTableDialogClosed(bool accepted, QString scheme)
 {   
     if (!accepted) {
         afterCancelClicked();
@@ -597,19 +596,19 @@ void PartitionerView::createTableDialogClosed(bool accepted, QString scheme, QSt
     }
     
     PartitionTableScheme schemeEnum = (scheme == "gpt") ? GPTScheme : MBRScheme;
-    m_manager->registerAction( new Actions::CreatePartitionTableAction(disk, schemeEnum) );
+    m_manager->registerAction( new Actions::CreatePartitionTableAction(m_currentDisk, schemeEnum) );
     checkErrors();
     afterOkClicked();
 }
 
-void PartitionerView::removeTableDialogClosed(bool accepted, QString disk)
+void PartitionerView::removeTableDialogClosed(bool accepted)
 {    
     if (!accepted) {
         afterCancelClicked();
         return;
     }
     
-    m_manager->registerAction( new Actions::RemovePartitionTableAction(disk) );
+    m_manager->registerAction( new Actions::RemovePartitionTableAction(m_currentDisk) );
     checkErrors();
     afterOkClicked();
 }
@@ -620,15 +619,14 @@ void PartitionerView::createPartitionDialogClosed(bool accepted,
                                                   QString type,
                                                   QString label,
                                                   QString filesystem,
-                                                  QString containerName,
-                                                  QString disk)
+                                                  QString containerName)
 {    
     if (!accepted) {
         afterCancelClicked();
         return;
     }
     
-    VolumeTree diskTree = m_manager->diskTree(disk);
+    VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
     DeviceModified* container = diskTree.searchDevice(containerName);
 
     qulonglong byteSize = (qulonglong)size * 1024 * 1024;
@@ -638,13 +636,13 @@ void PartitionerView::createPartitionDialogClosed(bool accepted,
     Filesystem fs( filesystem );
     QStringList flags = checkedFlags(CREATE_PARTITION);
     
-    CreatePartitionAction* action = new CreatePartitionAction(disk, offset, byteSize, extended, fs, label, flags);
+    CreatePartitionAction* action = new CreatePartitionAction(m_currentDisk, offset, byteSize, extended, fs, label, flags);
     m_manager->registerAction(action);
     checkErrors();
     afterOkClicked();
 }
 
-void PartitionerView::resizeDialogClosed(bool accepted, qreal size, qreal sb, QString partitionName)
+void PartitionerView::resizeDialogClosed(bool accepted, qreal size, qreal sb)
 {    
     if (!accepted) {
         afterCancelClicked();
@@ -652,7 +650,7 @@ void PartitionerView::resizeDialogClosed(bool accepted, qreal size, qreal sb, QS
     }
     
     VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
-    DeviceModified* partition = diskTree.searchDevice(partitionName);
+    DeviceModified* partition = diskTree.searchDevice(m_currentDevice);
     qulonglong spaceBefore = (qulonglong)sb * 1024 * 1024;
     qulonglong newSize = (qulonglong)size * 1024 * 1024;
     qulonglong newOffset = partition->offset();
@@ -672,7 +670,7 @@ void PartitionerView::resizeDialogClosed(bool accepted, qreal size, qreal sb, QS
     
     qDebug() << newOffset << newSize;
     
-    m_manager->registerAction( new ResizePartitionAction(partitionName, newOffset, newSize) );
+    m_manager->registerAction( new ResizePartitionAction(m_currentDevice, newOffset, newSize) );
     checkErrors();
     afterOkClicked();
 }

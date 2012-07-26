@@ -423,6 +423,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     if (actionName == MODIFY_PARTITION) {
         Partition* partition = dynamic_cast< Partition* >(device);
         dialog->setProperty("currentLabel", partition->label());
+        dialog->setProperty("scheme", partition->partitionTableScheme());
         
         QStringList partitionFlags = partition->flags();
         QStringList schemeFlags = PartitionTableUtils::instance()->supportedFlags( partition->partitionTableScheme() );

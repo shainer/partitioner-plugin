@@ -23,6 +23,7 @@ Rectangle
     opacity: 0
 
     property string currentLabel
+    property string scheme /* the partition table scheme: useful because MBR doesn't support labeled partitions, while GPT does */
     property string partition /* this property must hold the partition to be modified */
     
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
@@ -36,6 +37,12 @@ Rectangle
         
         parent.width = 250;
         parent.height = 150;
+        
+        if (scheme == "mbr") {
+            currentLabel = "";
+            labelInput.readOnly = true;
+            labelText.color = "gray";
+        }
     }
     
     function hide()
@@ -46,6 +53,7 @@ Rectangle
     
     Text
     {
+        id: labelText
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.leftMargin: 6
@@ -72,9 +80,10 @@ Rectangle
         TextInput
         {
             id: labelInput
-            
             anchors.fill: parent
             anchors.margins: 3
+            
+            maximumLength: 36 /* this is the maximum label length allowed in GPT */
             text: currentLabel /* initially we show the current partition's label */
         }
     }

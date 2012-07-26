@@ -25,7 +25,7 @@ Rectangle
     
     signal closed(bool confirmed)
     
-    function show(unused)
+    function show()
     {
         dialogSet.state = "visible";
         applyConfirmationDialog.opacity = 1;

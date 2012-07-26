@@ -40,6 +40,16 @@ void ComboBox::setWidth(int w)
     widget->setMinimumWidth(w);
 }
 
+bool ComboBox::enabled() const
+{
+    return widget->isEnabled();
+}
+
+void ComboBox::setEnabled(bool enabled)
+{
+    widget->setEnabled(enabled);
+}
+
 QStringList ComboBox::items() const
 {
     QStringList textes;

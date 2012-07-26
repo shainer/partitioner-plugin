@@ -22,6 +22,7 @@ class ComboBox : public QGraphicsProxyWidget
     Q_PROPERTY(QString currentText READ currentText NOTIFY currentTextChanged)
     Q_PROPERTY(int width READ width WRITE setWidth)
     Q_PROPERTY(QStringList items READ items WRITE setItems)
+    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled)
     
 public:
     ComboBox(QGraphicsItem* parent = 0);
@@ -34,6 +35,9 @@ public:
     
     QStringList items() const;
     void setItems(const QStringList &);
+    
+    bool enabled() const;
+    void setEnabled(bool);
     
 signals:
     void currentTextChanged(QString);

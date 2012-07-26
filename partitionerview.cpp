@@ -17,6 +17,8 @@
 #include <qmlkdeicon.h>
 #include <executerthread.h>
 
+#include <solid/partitioner/volumetreemap.h>
+#include <solid/partitioner/actions/modifyfilesystemaction.h>
 #include <solid/partitioner/utils/filesystemutils.h>
 #include <solid/partitioner/actions/resizepartitionaction.h>
 #include <solid/partitioner/actions/createpartitionaction.h>
@@ -105,8 +107,8 @@ PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     
     /* Operations to be performed when the dialog is closed (i.e. register the correspondent action, if necessary) */
     QObject::connect( m_dialogs[FORMAT_PARTITION],
-                      SIGNAL(closed(bool, QString, QString, QString, QString)),
-                      SLOT(formatDialogClosed(bool, QString, QString, QString, QString)) );
+                      SIGNAL(closed(bool, bool, QString, QString, QString, QString)),
+                      SLOT(formatDialogClosed(bool, bool, QString, QString, QString, QString)) );
     QObject::connect( m_dialogs[MODIFY_PARTITION], SIGNAL(closed(bool, QString)), SLOT(modifyDialogClosed(bool, QString)) );
     QObject::connect( m_dialogs[CREATE_PARTITION_TABLE], SIGNAL(closed(bool, QString)), SLOT(createTableDialogClosed(bool, QString)));
     QObject::connect( m_dialogs[REMOVE_PARTITION_TABLE], SIGNAL(closed(bool)), SLOT(removeTableDialogClosed(bool)));
@@ -161,7 +163,7 @@ QObject* PartitionerView::getDiskView()
 void PartitionerView::setInitialSelection(const QString& selectedDevice)
 {
     QString diskName = findDiskWithDevice(selectedDevice);
-    QList<VolumeTree> trees = m_manager->allDiskTrees().values();
+    QList<VolumeTree> trees = m_manager->allDiskTrees().deviceTrees().values();
     int diskIndex = 0;
     
     /* Finds the index of the disk the device is located into */
@@ -204,15 +206,14 @@ int PartitionerView::findIndexOfDevice(const QString& devName)
 /* Utility function which returns the disk name containing a given device */
 QString PartitionerView::findDiskWithDevice(const QString& devName)
 {
-    QMap< QString, VolumeTree > trees = m_manager->allDiskTrees();
+    VolumeTreeMap map = m_manager->allDiskTrees();
+    VolumeTree tree = map.searchTreeWithDevice(devName).first;
     
-    foreach (const QString& key, trees.keys()) {
-        if (trees[key].searchDevice(devName)) {
-            return key;
-        }
+    if (!tree.valid()) {
+        return QString();
     }
     
-    return QString();
+    return tree.disk()->name();
 }
 
 /* Sets the information needed to display the button box on top. By default, all buttons are clickable. */
@@ -275,7 +276,7 @@ void PartitionerView::setActionList()
 /* Sets the model for the view that displays the currently available disks */
 void PartitionerView::setDiskList()
 {
-    m_diskList = VolumeManager::instance()->allDiskTrees().keys();
+    m_diskList = VolumeManager::instance()->allDiskTrees().deviceTrees().keys();
     m_context->setContextProperty("diskModel", QVariant::fromValue(m_diskList));
 }
 
@@ -544,6 +545,7 @@ QStringList PartitionerView::acceptedPartitionTypes(const VolumeTree& diskTree, 
 }
 
 void PartitionerView::formatDialogClosed(bool accepted,
+                                         bool onlySetLabel,
                                          QString filesystem,
                                          QString fsLabel,
                                          QString ownerUid,
@@ -554,11 +556,17 @@ void PartitionerView::formatDialogClosed(bool accepted,
         return;
     }
     
-    int uid = (ownerUid.isEmpty()) ? -1 : ownerUid.toInt();
-    int gid = (ownerGid.isEmpty()) ? -1 : ownerGid.toInt();
-    Filesystem fs(filesystem, fsLabel, uid, gid);
+    if (onlySetLabel) {
+        m_manager->registerAction( new Actions::ModifyFilesystemAction(m_currentDevice, fsLabel) );
+    }
+    else {
+        int uid = (ownerUid.isEmpty()) ? -1 : ownerUid.toInt();
+        int gid = (ownerGid.isEmpty()) ? -1 : ownerGid.toInt();
+        Filesystem fs(filesystem, fsLabel, uid, gid);
+        
+        m_manager->registerAction( new Actions::FormatPartitionAction(m_currentDevice, fs) );
+    }
     
-    m_manager->registerAction( new Actions::FormatPartitionAction(m_currentDevice, fs) );
     checkErrors();
     afterOkClicked();
 }
@@ -758,8 +766,11 @@ void PartitionerView::afterOkClicked()
 
 void PartitionerView::applyDialogClosed()
 {
-    isDialogOpen = false;    
+    isDialogOpen = false;
+    
     doSelectedDiskChanged(m_currentDisk);
+    manageSelections(false);
+    m_diskView->setProperty("currentIndex", m_diskList.indexOf(m_currentDisk));
     
     setActionList();
     setGenericButtonsState();

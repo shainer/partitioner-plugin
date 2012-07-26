@@ -24,10 +24,17 @@ Rectangle
     height: parent.height
     opacity: 0
     
+    /* If this is true, we only register a change in the filesystem label, without reformatting everything */
+    property bool onlySetLabel: labelCheckBox.checked
     property variant supportedFilesystems
     
-    /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
-    signal closed(bool accepted, string filesystem, string label, string uid, string gid)
+    signal closed(bool accepted, bool onlySetLabel, string filesystem, string label, string uid, string gid)
+    
+    onOnlySetLabelChanged: {
+        uidInput.active = !onlySetLabel;
+        gidInput.active = !onlySetLabel;
+        fsComboBox.enabled = !onlySetLabel;
+    }
     
     function show()
     {
@@ -38,7 +45,7 @@ Rectangle
         fsComboBox.items = supportedFilesystems;
         
         parent.width = 500;
-        parent.height = 150;
+        parent.height = 170;
     }
     
     function hide()
@@ -56,6 +63,7 @@ Rectangle
             
     Text
     {
+        id: selectFsText
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.margins: 6
@@ -126,6 +134,26 @@ Rectangle
             id: gidInput
             displayedText: "Owner's GID: "
         }
+        
+        Row
+        {
+            spacing: 4
+            
+            CheckBox
+            {
+                id: labelCheckBox
+                width: 20
+                height: 20
+                initialChecked: false
+                
+                onCheckedChanged: formatDialog.onlySetLabel = checked;
+            }
+            
+            Text
+            {
+                text: "only set a new label"
+            }
+        }
     }
         
     Row
@@ -144,6 +172,7 @@ Rectangle
                 onClicked: {
                     formatDialog.hide();
                     formatDialog.closed(true,
+                                        formatDialog.onlySetLabel,
                                         fsComboBox.currentText,
                                         labelInput.inputText,
                                         uidInput.inputText,
@@ -161,7 +190,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     formatDialog.hide();
-                    formatDialog.closed(false, "", "", "", "");
+                    formatDialog.closed(false, false, "", "", "", "");
                 }
             }
         }

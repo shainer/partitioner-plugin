@@ -323,7 +323,7 @@ void PartitionerView::doDeviceRemoved(QString device)
     Disk* currentDisk = currentTree.disk();
     
     if (currentDisk->name() == device) {
-        setDiskTree( m_diskList.last() );
+        setDiskTree( m_diskList.first() );
     }
     
     m_treeModel.readDataAgain();

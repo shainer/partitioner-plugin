@@ -28,8 +28,8 @@
 #include <solid/partitioner/actions/removepartitionaction.h>
 #include <solid/partitioner/actions/modifypartitionaction.h>
 #include <solid/partitioner/utils/partitiontableutils.h>
-#include <solid/partitioner/utils/filesystem.h>
-#include <solid/partitioner/utils/partitioningerror.h>
+#include <solid/partitioner/filesystem.h>
+#include <solid/partitioner/partitioningerror.h>
 #include <solid/partitioner/volumemanager.h>
 #include <solid/partitioner/actions/formatpartitionaction.h>
 #include <solid/partitioner/devices/disk.h>
@@ -719,9 +719,9 @@ void PartitionerView::applyActions(bool confirmed)
 /* Check if the latest action was successfully. Otherwise, show the error description in a dialog. */
 void PartitionerView::checkErrors()
 {
-    Utils::PartitioningError error = m_manager->error();
+    PartitioningError error = m_manager->error();
     
-    if (error.type() != Utils::PartitioningError::None) {
+    if (error.type() != PartitioningError::None) {
         QObject* errorDialog = m_dialogs["error"];        
         QMetaObject::invokeMethod(errorDialog, "show", Qt::QueuedConnection, Q_ARG(QVariant, error.description()));
     }

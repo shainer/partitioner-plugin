@@ -25,6 +25,7 @@ Rectangle
     property real size
     property real before
     property real after
+    property real minSize
     
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
     signal closed(bool accepted, real newSize, real spaceBefore)
@@ -34,10 +35,10 @@ Rectangle
         dialogSet.state = "visible";
         resizeDialog.opacity = 1;
         
-        partitionSizeBox.init(before, size, after)
+        partitionSizeBox.init(before, size, after, minSize)
         
         parent.width = 350;
-        parent.height = 150;
+        parent.height = 170;
     }
     
     function hide()
@@ -46,13 +47,21 @@ Rectangle
         resizeDialog.opacity = 0;
     }
     
+    Text
+    {
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.margins: 5
+        
+        text: "Partition minimum size: " + resizeDialog.minSize + " MB"
+    }
+    
     PartitionSizeBox
     {
         id: partitionSizeBox
         
-        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
-        anchors.topMargin: 6
     }
         
     Row

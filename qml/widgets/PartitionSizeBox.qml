@@ -22,13 +22,14 @@ Grid
     property real bSize: spaceBefore.actualValue
     
     /* Sets initial values for spinboxes */
-    function init(bvalue, value, avalue)
+    function init(bvalue, value, avalue, minSize)
     {
         var spaceSum = bvalue + value + avalue;
         
         spaceBefore.maximum = spaceSum - 1;
         spaceAfter.maximum = spaceSum - 1;
         partitionSize.maximum = spaceSum;
+        partitionSize.minimum = minSize;
         
         spaceBefore.setValue(bvalue.toFixed(1), false);
         spaceBefore.actualValue = bvalue;

@@ -490,6 +490,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     else if (actionName == RESIZE_PARTITION) {
         DeviceModified* leftDevice = diskTree.leftDevice(device);
         DeviceModified* rightDevice = diskTree.rightDevice(device);
+        Partition* partition =  dynamic_cast< Partition* >( diskTree.searchDevice(m_currentDevice) );
         double beforeSize = 0.0f;
         double afterSize = 0.0f;
         
@@ -503,6 +504,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         dialog->setProperty("before", beforeSize);
         dialog->setProperty("size", (double)(device->size()) / 1024.0f / 1024.0f);
         dialog->setProperty("after", afterSize);
+        dialog->setProperty("minSize", partition->minimumSize() / 1024.0f / 1024.0f);
     }
     else if (actionName == UNDO) {
         showDialog = false;

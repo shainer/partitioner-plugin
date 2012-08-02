@@ -10,7 +10,7 @@
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
 */
-#include <qmlkdeicon.h>
+#include <qmlwidgets/qmlkdeicon.h>
 #include <kicon.h>
 #include <kicontheme.h>
 #include <QStringList>

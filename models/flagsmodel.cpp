@@ -9,7 +9,7 @@
    version 2 of the License, or (at your option) any later version.
 */
 
-#include <flagsmodel.h>
+#include <models/flagsmodel.h>
 
 FlagsModel::FlagsModel(QObject* parent)
     : QAbstractListModel(parent)

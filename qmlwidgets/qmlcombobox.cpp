@@ -9,7 +9,7 @@
    version 2 of the License, or (at your option) any later version.
 */
 
-#include <qmlcombobox.h>
+#include <qmlwidgets/qmlcombobox.h>
 
 ComboBox::ComboBox(QGraphicsItem* parent)
     : QGraphicsProxyWidget(parent)

@@ -10,8 +10,8 @@
 */
 
 #include <pluginregister.h>
-#include <qmlcombobox.h>
-#include <qmlkdeicon.h>
+#include <qmlwidgets/qmlcombobox.h>
+#include <qmlwidgets/qmlkdeicon.h>
 #include <qdeclarative.h>
 
 void QWidgetsPlugin::registerTypes(const char* uri)

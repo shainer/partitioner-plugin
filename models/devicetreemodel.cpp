@@ -8,7 +8,7 @@
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
 */
-#include <devicetreemodel.h>
+#include <models/devicetreemodel.h>
 #include <kio/global.h>
 
 using namespace Solid::Partitioner::Devices;

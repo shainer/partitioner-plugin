@@ -10,11 +10,11 @@
 */
 
 #include <partitionerview.h>
-#include <devicetreemodel.h>
-#include <qmlcombobox.h>
+#include <models/buttonboxmodel.h>
+#include <qmlwidgets/qmlcombobox.h>
+#include <qmlwidgets/qmlkdeicon.h>
 #include <pluginregister.h>
 #include <buttonnames.h>
-#include <qmlkdeicon.h>
 #include <executerthread.h>
 
 #include <solid/partitioner/volumetreemap.h>

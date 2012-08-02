@@ -19,14 +19,14 @@ set(test_SRCS
     main.cpp
     partitionerview.cpp
     executerthread.cpp
-
-    buttonboxmodel.cpp
-    devicetreemodel.cpp
-    flagsmodel.cpp
-
-    qmlcombobox.cpp
-    qmlkdeicon.cpp
     pluginregister.cpp
+
+    models/buttonboxmodel.cpp
+    models/devicetreemodel.cpp
+    models/flagsmodel.cpp
+
+    qmlwidgets/qmlcombobox.cpp
+    qmlwidgets/qmlkdeicon.cpp
 )
 
 kde4_add_executable(dolphin-partitioner ${test_SRCS})
@@ -36,16 +36,20 @@ target_link_libraries(dolphin-partitioner ${CMAKE_INSTALL_PREFIX}/lib/libsolid.s
                                           ${QT_QTDECLARATIVE_LIBRARY}
                                           ${KDE4_KIO_LIBRARY})
 
-install(FILES buttonboxmodel.h
-              devicetreemodel.h
-              flagsmodel.h
-              partitionerview.h
-              qmlcombobox.h
-              qmlkdeicon.h
+install(FILES partitionerview.h
               pluginregister.h
               buttonnames.h
               executerthread.h
         DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/include)
+
+install(FILES models/buttonboxmodel.h
+              models/flagsmodel.h
+              models/devicetreemodel.h
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/include/models)
+
+install(FILES qmlwidgets/qmlcombobox.h
+              qmlwidgets/qmlkdeicon.h
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/include/qmlwidgets)
 
 install(FILES QWidgets/qmldir
         DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/qml/QWidgets)

@@ -105,6 +105,12 @@ private:
     QString m_currentDevice; /* the currently selected device */
     bool isDialogOpen; /* block all selection changes when a dialog is currently open */
     
+    /*
+     * This method is invoked in the constructor: it checks for the existence of some basilar filesystem tools, which
+     * are used by the partitioner library, and displays a warning if some isn't installed.
+     */
+    void lookForFilesystemTools();
+    
     void setButtonBox();
     void setGenericButtonsState();
     void setDiskList();

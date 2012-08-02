@@ -35,11 +35,12 @@
 #include <solid/partitioner/devices/disk.h>
 #include <solid/partitioner/devices/partition.h>
 
+#include <kstandarddirs.h>
+
 #include <QDeclarativeContext>
 #include <qdeclarative.h>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <unistd.h>
 
 using namespace Solid::Partitioner;
 using namespace Solid::Partitioner::Actions;
@@ -93,6 +94,7 @@ PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     m_dialogs.insert(APPLY, dialogSet->findChild< QObject* >("applyConfirmationDialog"));
     m_dialogs.insert("applyDialog", dialogSet->findChild< QObject* >("applyDialog"));
     m_dialogs.insert("error", dialogSet->findChild< QObject* >("errorDialog"));
+    m_dialogs.insert("toolWarningDialog", dialogSet->findChild< QObject* >("toolWarningDialog"));
     
     /* Receive changes from Solid */
     QObject::connect( m_manager, SIGNAL(deviceAdded(VolumeTree)), this, SLOT(doDeviceAdded(VolumeTree)) );
@@ -122,6 +124,7 @@ PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     
     /* Finally, the GUI is opened! */
     m_view.show();
+    lookForFilesystemTools();
 }
 
 PartitionerView::~PartitionerView()
@@ -137,6 +140,20 @@ void PartitionerView::setWindowSize()
     /* The window size will be the same as the screen size */
     m_rootObject->setProperty("width", width);
     m_rootObject->setProperty("height", height);
+}
+
+void PartitionerView::lookForFilesystemTools()
+{
+    QString ntfs = KStandardDirs::findExe("ntfsresize");
+    QString ext = KStandardDirs::findExe("dumpe2fs");
+    QString reiser = KStandardDirs::findExe("debugreiserfs");
+    QString xfs = KStandardDirs::findExe("xfs_db");
+    bool warning = ntfs.isEmpty() || ext.isEmpty() || reiser.isEmpty() || xfs.isEmpty();
+    
+    if (warning) {
+        QObject* dialog = m_dialogs["toolWarningDialog"];
+        QMetaObject::invokeMethod(dialog, "show", Qt::QueuedConnection);
+    }
 }
 
 /* I'm deeply sorry for this. */

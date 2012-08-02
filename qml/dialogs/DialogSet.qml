@@ -73,4 +73,5 @@ Rectangle
     ApplyConfirmationDialog {}
     ApplyDialog {}
     ErrorDialog {}
+    ToolWarningDialog {}
 }

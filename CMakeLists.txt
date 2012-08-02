@@ -34,8 +34,7 @@ target_link_libraries(dolphin-partitioner ${CMAKE_INSTALL_PREFIX}/lib/libsolid.s
                                           ${QT_QTCORE_LIBRARY}
                                           ${QT_QTGUI_LIBRARY}                           
                                           ${QT_QTDECLARATIVE_LIBRARY}
-                                          ${KDE4_KIO_LIBRARY}
-                                          ${KDE4_UI_LIBRARY} )
+                                          ${KDE4_KIO_LIBRARY})
 
 install(FILES buttonboxmodel.h
               devicetreemodel.h

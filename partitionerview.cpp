@@ -50,9 +50,22 @@ using namespace Solid::Partitioner::Devices;
 PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     : QObject(parent)
     , m_context( m_view.rootContext() )
-    , m_manager( VolumeManager::instance() )
     , isDialogOpen(false)
 {
+    /*
+     * This displays a widget (centered on the screen) while VolumeManager is detecting devices,
+     * since it can take some time, and hides it when we're done.
+     */
+    QDeclarativeView waitView;
+    waitView.setSource(QUrl::fromLocalFile("/etc/dolphin-partitioner/dialogs/WaitDialog.qml"));
+    int width = (QApplication::desktop()->width() / 2) - (waitView.width() / 2);
+    int height = (QApplication::desktop()->height() / 2) - (waitView.height() / 2);
+    waitView.move( width, height );
+    
+    waitView.show();
+    m_manager = VolumeManager::instance();
+    waitView.hide();
+    
     /* Sets all the models and their initial state for the QML view */
     setButtonBox();
     setGenericButtonsState();

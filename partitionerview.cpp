@@ -11,7 +11,6 @@
 
 #include <partitionerview.h>
 #include <models/buttonboxmodel.h>
-#include <qmlwidgets/qmlcombobox.h>
 #include <qmlwidgets/qmlkdeicon.h>
 #include <pluginregister.h>
 #include <buttonnames.h>
@@ -36,6 +35,7 @@
 #include <solid/partitioner/devices/partition.h>
 
 #include <kstandarddirs.h>
+#include <kio/global.h>
 
 #include <QDeclarativeContext>
 #include <qdeclarative.h>
@@ -50,6 +50,7 @@ using namespace Solid::Partitioner::Devices;
 PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     : QObject(parent)
     , m_context( m_view.rootContext() )
+    , m_thread(0)
     , isDialogOpen(false)
 {
     /*
@@ -504,6 +505,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         DeviceModified* leftDevice = diskTree.leftDevice(device);
         DeviceModified* rightDevice = diskTree.rightDevice(device);
         Partition* partition =  dynamic_cast< Partition* >( diskTree.searchDevice(m_currentDevice) );
+        
         double beforeSize = 0.0f;
         double afterSize = 0.0f;
         
@@ -513,11 +515,13 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         if (rightDevice && rightDevice->deviceType() == DeviceModified::FreeSpaceDevice) {
             afterSize = (double)(rightDevice->size()) / 1024.04 / 1024.04;
         }
-        
+         
         dialog->setProperty("before", beforeSize);
         dialog->setProperty("size", (double)(device->size()) / 1024.0f / 1024.0f);
         dialog->setProperty("after", afterSize);
-        dialog->setProperty("minSize", partition->minimumSize() / 1024.0f / 1024.0f);
+        dialog->setProperty("minSize", (double)partition->minimumSize() / 1024.0f / 1024.0f);
+        dialog->setProperty("minSizeString", KIO::convertSize( partition->minimumSize() ));
+        
     }
     else if (actionName == UNDO) {
         showDialog = false;
@@ -742,10 +746,12 @@ void PartitionerView::applyActions(bool confirmed)
     dialog->setProperty("actionColor", "black");
     QMetaObject::invokeMethod(dialog, "show");
     
-    ExecuterThread* thread = new ExecuterThread;
-    QObject::connect(thread, SIGNAL(sendProgressChanged(int)), SLOT(reportProgress(int)), Qt::DirectConnection);
-    QObject::connect(thread, SIGNAL(sendExecutionError(QString)), SLOT(executionError(QString)), Qt::DirectConnection);
-    thread->start();
+    delete m_thread;
+    m_thread = new ExecuterThread;
+    QObject::connect(m_thread, SIGNAL(sendProgressChanged(int)), SLOT(reportProgress(int)), Qt::QueuedConnection);
+    QObject::connect(m_thread, SIGNAL(sendExecutionError(QString)), SLOT(executionError(QString)), Qt::QueuedConnection);
+    QObject::connect(m_thread, SIGNAL(sendFinishedExecution()), SLOT(executionFinished()), Qt::QueuedConnection);
+    m_thread->start();
 }
 
 /* Check if the latest action was successfully. Otherwise, show the error description in a dialog. */
@@ -812,16 +818,8 @@ void PartitionerView::reportProgress(int nextAction)
 {
     QObject* dialog = m_dialogs["applyDialog"];
     
-    if (nextAction < m_registeredActions.size()) {
-        dialog->setProperty("currentAction", m_registeredActions.at(nextAction)->description());
-        dialog->setProperty("currentActionIndex", nextAction);
-        qDebug() << "nextAction" << nextAction;
-    }
-    else {
-        dialog->setProperty("currentAction", "Finished successfully!");
-        dialog->setProperty("currentActionIndex", m_registeredActions.size());
-        dialog->setProperty("finished", true);
-    }
+    dialog->setProperty("currentAction", m_registeredActions.at(nextAction-1)->description());
+    dialog->setProperty("currentActionIndex", nextAction-1);
 }
 
 void PartitionerView::executionError(QString err)
@@ -839,6 +837,15 @@ void PartitionerView::executionError(QString err)
     
     dialog->setProperty("currentAction", errorMessage);
     dialog->setProperty("actionColor", QString::fromAscii("red"));
+    dialog->setProperty("finished", true);
+}
+
+void PartitionerView::executionFinished()
+{
+    QObject* dialog = m_dialogs["applyDialog"];
+    
+    dialog->setProperty("currentAction", "Finished successfully!");
+    dialog->setProperty("currentActionIndex", m_registeredActions.size());
     dialog->setProperty("finished", true);
 }
 

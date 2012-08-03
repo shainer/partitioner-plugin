@@ -32,6 +32,7 @@ signals:
      */
     void sendProgressChanged(int);
     void sendExecutionError(QString);
+    void sendFinishedExecution();
     
 private:
     VolumeManager* m_manager;

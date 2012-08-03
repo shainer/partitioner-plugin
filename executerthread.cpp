@@ -20,6 +20,7 @@ ExecuterThread::ExecuterThread(QObject* parent)
 {
     QObject::connect(m_manager, SIGNAL(progressChanged(int)), SIGNAL(sendProgressChanged(int)), Qt::DirectConnection);
     QObject::connect(m_manager, SIGNAL(executionError(QString)), SIGNAL(sendExecutionError(QString)), Qt::DirectConnection);
+    QObject::connect(m_manager, SIGNAL(executionFinished()), SIGNAL(sendFinishedExecution()), Qt::DirectConnection);
 }
 
 void ExecuterThread::run()

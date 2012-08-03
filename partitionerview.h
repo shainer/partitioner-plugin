@@ -17,10 +17,11 @@
 #include <QDeclarativeContext>
 #include <QGraphicsObject>
 
-#include <buttonboxmodel.h>
-#include <devicetreemodel.h>
-#include "pluginregister.h"
-#include "flagsmodel.h"
+#include <models/buttonboxmodel.h>
+#include <models/devicetreemodel.h>
+#include <pluginregister.h>
+#include <executerthread.h>
+#include <models/flagsmodel.h>
 
 #include <solid/partitioner/volumetree.h>
 #include <solid/partitioner/volumemanager.h>
@@ -75,6 +76,7 @@ public slots:
     /* These slots are used while applying changes on the system. */
     void reportProgress(int);
     void executionError(QString);
+    void executionFinished();
     
     /*
      * This special slot reports when the accessibility status of a volume changes (i.e. it was mounted or umounted), forcing
@@ -100,6 +102,7 @@ private:
     VolumeManager* m_manager;
     QList< Actions::Action* > m_registeredActions;
     QStringList m_diskList;
+    ExecuterThread* m_thread;
     
     QString m_currentDisk; /* the currently selected disk */
     QString m_currentDevice; /* the currently selected device */

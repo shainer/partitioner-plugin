@@ -26,6 +26,7 @@ Rectangle
     property real before
     property real after
     property real minSize
+    property string minSizeString
     
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
     signal closed(bool accepted, real newSize, real spaceBefore)
@@ -53,7 +54,7 @@ Rectangle
         anchors.left: parent.left
         anchors.margins: 5
         
-        text: "Partition minimum size: " + resizeDialog.minSize + " MB"
+        text: "Partition minimum size: " + resizeDialog.minSizeString
     }
     
     PartitionSizeBox

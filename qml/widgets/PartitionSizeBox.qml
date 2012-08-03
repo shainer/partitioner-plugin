@@ -11,6 +11,7 @@
    version 2 of the License, or (at your option) any later version.
 */
 import QtQuick 1.0
+import ApplicationWidgets 1.0
 
 Grid
 {
@@ -31,13 +32,13 @@ Grid
         partitionSize.maximum = spaceSum;
         partitionSize.minimum = minSize;
         
-        spaceBefore.setValue(bvalue.toFixed(1), false);
+        spaceBefore.setValueWithoutNotify(bvalue.toFixed(3));
         spaceBefore.actualValue = bvalue;
         
-        partitionSize.setValue(value.toFixed(1), false);
+        partitionSize.setValueWithoutNotify(value.toFixed(3));
         partitionSize.actualValue = value;
         
-        spaceAfter.setValue(avalue.toFixed(1), false);
+        spaceAfter.setValueWithoutNotify(avalue.toFixed(3));
         spaceAfter.actualValue = avalue;
     }
     
@@ -49,22 +50,28 @@ Grid
         value: 0.0
         minimum: 0.0
         
-        minimumWidth: 150
-        minimumHeight: 20
+        width: 100
+        height: 20
         
         /*
          * When the free space before is increase/decreased, decrease/increase the partition size respectively,
          * but only if we aren't going above the allowed values.
          */
-        onSetNewValue: {
+        onValueChanged: {
             var newPartitionVal = partitionSize.value - (spaceBefore.value - oldValue);
             
             if (newPartitionVal > partitionSize.maximum || newPartitionVal < partitionSize.minimum) {
-                spaceBefore.setValue(oldValue, false);
+                spaceBefore.setValueWithoutNotify(oldValue);
             }
             else {
-                partitionSize.setValue(newPartitionVal, false);
+                partitionSize.setValueWithoutNotify(newPartitionVal);
             }
+            
+            parent.bSize = spaceBefore.actualValue;
+        }
+        
+        onSimpleValueChanged: {
+            parent.bSize = spaceBefore.actualValue;
         }
     }
 
@@ -75,18 +82,24 @@ Grid
         id: partitionSize
         minimum: 1.0
         
-        minimumWidth: 150
-        minimumHeight: 20
+        width: 100
+        height: 20
         
-        onSetNewValue: {
+        onValueChanged: {
             var newAfterVal = spaceAfter.value - (partitionSize.value - oldValue);
             
             if (newAfterVal > spaceAfter.maximum || newAfterVal < spaceAfter.minimum) {
-                partitionSize.setValue(oldValue, false);
+                partitionSize.setValueWithoutNotify(oldValue);
             }
             else {
-                spaceAfter.setValue(newAfterVal, false);
+                spaceAfter.setValueWithoutNotify(newAfterVal);
             }
+            
+            parent.pSize = partitionSize.actualValue;
+        }
+        
+        onSimpleValueChanged: {
+            parent.pSize = partitionSize.actualValue;
         }
     }
 
@@ -98,17 +111,17 @@ Grid
         value: 0.0
         minimum: 0.0
         
-        minimumWidth: 150
-        minimumHeight: 20
+        width: 100
+        height: 20
         
-        onSetNewValue: {
+        onValueChanged: {
             var newPartitionVal = partitionSize.value - (spaceAfter.value - oldValue);
             
             if (newPartitionVal > partitionSize.maximum || newPartitionVal < partitionSize.minimum) {
-                spaceAfter.setValue(oldValue, false);
+                spaceAfter.setValueWithoutNotify(oldValue);
             }
             else {
-                partitionSize.setValue(newPartitionVal, false);
+                partitionSize.setValueWithoutNotify(newPartitionVal);
             }
         }
     }

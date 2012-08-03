@@ -27,6 +27,7 @@ set(test_SRCS
 
     qmlwidgets/qmlcombobox.cpp
     qmlwidgets/qmlkdeicon.cpp
+    qmlwidgets/qmlspinbox.cpp
 )
 
 kde4_add_executable(dolphin-partitioner ${test_SRCS})
@@ -49,6 +50,7 @@ install(FILES models/buttonboxmodel.h
 
 install(FILES qmlwidgets/qmlcombobox.h
               qmlwidgets/qmlkdeicon.h
+              qmlwidgets/qmlspinbox.h
         DESTINATION ${CMAKE_INSTALL_PREFIX}/plugin/include/qmlwidgets)
 
 install(FILES QWidgets/qmldir

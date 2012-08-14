@@ -70,22 +70,26 @@ void ButtonBoxModel::addTuple(const ButtonBoxTuple& tuple)
 
 void ButtonBoxModel::setButtonsEnabled(const QStringList& buttons, bool enabled)
 {
+    emit beginResetModel();
+    
     for (QList<ButtonBoxTuple>::iterator it = tuples.begin(); it != tuples.end(); it++) {
-        if (buttons.contains( it->buttonName() )) {
-            emit beginResetModel();
+        if (buttons.contains( it->buttonName() )) {            
             it->setClickEnabled(enabled);
-            emit endResetModel();
         }
     }
+    
+    emit endResetModel();
 }
 
 void ButtonBoxModel::disableAllButtons()
 {
+    emit beginResetModel();
+    
     for (QList<ButtonBoxTuple>::iterator it = tuples.begin(); it != tuples.end(); it++) {
-        emit beginResetModel();
         it->setClickEnabled(false);
-        emit endResetModel();
     }
+    
+    emit endResetModel();
 }
 
 int ButtonBoxModel::rowCount(const QModelIndex& parent) const

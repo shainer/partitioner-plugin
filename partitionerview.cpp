@@ -615,8 +615,21 @@ void PartitionerView::modifyDialogClosed(bool accepted, QString label)
     }
     
     QStringList flags = checkedFlags(MODIFY_PARTITION);
+    Partition* partition = m_manager->allDiskTrees().searchPartition(m_currentDevice);
+    Actions::ModifyPartitionAction* action = 0;
     
-    m_manager->registerAction( new Actions::ModifyPartitionAction(m_currentDevice, label, flags) );
+    /*
+     * This distinction avoids an uncessary operation when the label isn't actually changed, and plus
+     * it gives us a more readable description for the action.
+     */
+    if (label == partition->label()) {
+        action = new Actions::ModifyPartitionAction(m_currentDevice, flags);
+    }
+    else {
+        action = new Actions::ModifyPartitionAction(m_currentDevice, label, flags);
+    }
+    
+    m_manager->registerAction(action);
     checkErrors();
     afterOkClicked();
 }
@@ -824,7 +837,6 @@ void PartitionerView::reportProgress(int nextAction)
 
 void PartitionerView::executionError(QString err)
 {
-    qDebug() << err;
     QObject* dialog = m_dialogs["applyDialog"];
     QStringList lineList = err.split("\n");
     QString errorMessage;

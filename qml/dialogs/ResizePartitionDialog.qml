@@ -29,14 +29,19 @@ Rectangle
     property string minSizeString
     
     /* Unfortunately I haven't found a way to send the current state of all checkboxes with this signal yet. */
-    signal closed(bool accepted, real newSize, real spaceBefore)
+    signal closed(bool accepted, real newSize, real spaceBefore, real oldSize, real oldSpaceBefore)
     
     function show()
     {
         dialogSet.state = "visible";
         resizeDialog.opacity = 1;
         
-        partitionSizeBox.init(before, size, after, minSize)
+        var sizeMega = size / 1024 / 1024;
+        var beforeMega = before / 1024 / 1024;
+        var afterMega = after / 1024 / 1024;
+        var minSizeMega = minSize / 1024 / 1024;
+        
+        partitionSizeBox.init(beforeMega, sizeMega, afterMega, minSizeMega)
         
         parent.width = 350;
         parent.height = 170;
@@ -80,7 +85,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     resizeDialog.hide();
-                    resizeDialog.closed(true, partitionSizeBox.pSize, partitionSizeBox.bSize);
+                    resizeDialog.closed(true, partitionSizeBox.pSize, partitionSizeBox.bSize, resizeDialog.size, resizeDialog.before);
                 }
             }
         }
@@ -94,7 +99,7 @@ Rectangle
                 anchors.fill: parent
                 onClicked: {
                     resizeDialog.hide();
-                    resizeDialog.closed(false, 0.0, 0.0);
+                    resizeDialog.closed(false, 0.0, 0.0, 0.0, 0.0);
                 }
             }
         }

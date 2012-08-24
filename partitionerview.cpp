@@ -42,6 +42,8 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
+#define MEGABYTE (1024*1024)
+
 using namespace Solid::Partitioner;
 using namespace Solid::Partitioner::Actions;
 using namespace Solid::Partitioner::Utils;
@@ -131,7 +133,8 @@ PartitionerView::PartitionerView(const QString& selectedDevice, QObject* parent)
     QObject::connect( m_dialogs[CREATE_PARTITION],
                       SIGNAL(closed(bool, qreal, qreal, QString, QString, QString, QString)),
                       SLOT(createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString)));
-    QObject::connect( m_dialogs[RESIZE_PARTITION], SIGNAL(closed(bool, qreal, qreal)), SLOT(resizeDialogClosed(bool, qreal, qreal)));
+    QObject::connect( m_dialogs[RESIZE_PARTITION], SIGNAL(closed(bool, qreal, qreal, qreal, qreal)),
+                      SLOT(resizeDialogClosed(bool, qreal, qreal, qreal, qreal)));
     QObject::connect( m_dialogs[APPLY], SIGNAL(closed(bool)), SLOT(applyActions(bool)));
     QObject::connect( m_dialogs["error"], SIGNAL(closed()), SLOT(afterOkClicked()));
     QObject::connect( m_dialogs["applyDialog"], SIGNAL(closed()), SLOT(applyDialogClosed()));
@@ -494,7 +497,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         }
         
         /* Available space in megabytes */
-        double freeSpaceMega = (double)(device->size()) / 1024.0f / 1024.0f;
+        double freeSpaceMega = (double)(device->size()) / MEGABYTE;
         dialog->setProperty("freespace", freeSpaceMega);
         
         /* Possible types (logical, primary or extended) for the new partition */
@@ -504,22 +507,22 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     else if (actionName == RESIZE_PARTITION) {
         DeviceModified* leftDevice = diskTree.leftDevice(device);
         DeviceModified* rightDevice = diskTree.rightDevice(device);
-        Partition* partition =  dynamic_cast< Partition* >( diskTree.searchDevice(m_currentDevice) );
+        Partition* partition = dynamic_cast< Partition* >( diskTree.searchDevice(m_currentDevice) );
         
         double beforeSize = 0.0f;
         double afterSize = 0.0f;
         
         if (leftDevice && leftDevice->deviceType() == DeviceModified::FreeSpaceDevice) {
-            beforeSize = (double)(leftDevice->size()) / 1024.0f / 1024.0f;
+            beforeSize = (double)(leftDevice->size());
         }
         if (rightDevice && rightDevice->deviceType() == DeviceModified::FreeSpaceDevice) {
-            afterSize = (double)(rightDevice->size()) / 1024.04 / 1024.04;
+            afterSize = (double)(rightDevice->size());
         }
          
         dialog->setProperty("before", beforeSize);
-        dialog->setProperty("size", (double)(device->size()) / 1024.0f / 1024.0f);
+        dialog->setProperty("size", (double)(device->size()));
         dialog->setProperty("after", afterSize);
-        dialog->setProperty("minSize", (double)partition->minimumSize() / 1024.0f / 1024.0f);
+        dialog->setProperty("minSize", (double)partition->minimumSize());
         dialog->setProperty("minSizeString", KIO::convertSize( partition->minimumSize() ));
         
     }
@@ -685,21 +688,21 @@ void PartitionerView::createPartitionDialogClosed(bool accepted,
     
     VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
     DeviceModified* container = diskTree.searchDevice(containerName);
-
-    qulonglong byteSize = (qulonglong)size * 1024 * 1024;
-    qulonglong spaceBefore = (qulonglong)sb * 1024 * 1024;
+    
+    qulonglong byteSize = (qulonglong)size * MEGABYTE;
+    qulonglong spaceBefore = (qulonglong)sb * MEGABYTE;
     qulonglong offset = container->offset() + spaceBefore;
     bool extended = (type == "Extended");
     Filesystem fs( filesystem );
     QStringList flags = checkedFlags(CREATE_PARTITION);
-    
+
     CreatePartitionAction* action = new CreatePartitionAction(m_currentDisk, offset, byteSize, extended, fs, label, flags);
     m_manager->registerAction(action);
     checkErrors();
     afterOkClicked();
 }
 
-void PartitionerView::resizeDialogClosed(bool accepted, qreal size, qreal sb)
+void PartitionerView::resizeDialogClosed(bool accepted, qreal size, qreal sb, qreal osize, qreal osb)
 {    
     if (!accepted) {
         afterCancelClicked();
@@ -708,12 +711,17 @@ void PartitionerView::resizeDialogClosed(bool accepted, qreal size, qreal sb)
     
     VolumeTree diskTree = m_manager->diskTree(m_currentDisk);
     DeviceModified* partition = diskTree.searchDevice(m_currentDevice);
-    qulonglong spaceBefore = (qulonglong)sb * 1024 * 1024;
-    qulonglong newSize = (qulonglong)size * 1024 * 1024;
+    
+    qulonglong oldSizeMega = (qulonglong)osize / MEGABYTE;
+    qulonglong newSize = (qulonglong)osize + (((qulonglong)size - oldSizeMega) * MEGABYTE);
+    
+    qulonglong oldSpaceBefore = (qulonglong)osb / MEGABYTE;
+    qulonglong spaceBefore = (qulonglong)osb + (((qulonglong)sb - oldSpaceBefore) * MEGABYTE);
+    
     qulonglong newOffset = partition->offset();
     
     qDebug() << partition->offset() << partition->size();
-    
+
     if (spaceBefore > 0) {
         DeviceModified* leftDevice = diskTree.leftDevice(partition);
         

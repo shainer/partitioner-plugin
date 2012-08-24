@@ -62,7 +62,7 @@ public slots:
     void createTableDialogClosed(bool, QString);
     void removeTableDialogClosed(bool);
     void createPartitionDialogClosed(bool, qreal, qreal, QString, QString, QString, QString);
-    void resizeDialogClosed(bool, qreal, qreal);
+    void resizeDialogClosed(bool, qreal, qreal, qreal, qreal);
     void applyDialogClosed();
 
     void undoDialogClosed();

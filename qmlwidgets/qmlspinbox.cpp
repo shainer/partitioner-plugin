@@ -58,7 +58,6 @@ void SpinBox::setValue(double value)
 {
     widget->setValue(value);
     m_actualValue += (value - m_currentValue);
-    qDebug() << "value" << widget->value() << m_actualValue;
     m_currentValue = value;
 }
 

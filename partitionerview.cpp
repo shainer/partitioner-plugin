@@ -297,7 +297,7 @@ void PartitionerView::setActionList()
 {
     QStringList actionDescriptions;
     
-    foreach (Action* action, m_manager->registeredActions()) {
+    foreach (Actions::Action* action, m_manager->registeredActions()) {
         actionDescriptions << action->description();
     }
     
@@ -534,7 +534,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
     else if (actionName == APPLY) {
         QStringList actionDescriptions;
         
-        foreach (Action* action, m_manager->registeredActions()) {
+        foreach (Actions::Action* action, m_manager->registeredActions()) {
             actionDescriptions << action->description();
         }
         

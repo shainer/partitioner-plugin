@@ -717,11 +717,8 @@ void PartitionerView::resizeDialogClosed(bool accepted, qreal size, qreal sb, qr
     
     qulonglong oldSpaceBefore = (qulonglong)osb / MEGABYTE;
     qulonglong spaceBefore = (qulonglong)osb + (((qulonglong)sb - oldSpaceBefore) * MEGABYTE);
-    
     qulonglong newOffset = partition->offset();
     
-    qDebug() << partition->offset() << partition->size();
-
     if (spaceBefore > 0) {
         DeviceModified* leftDevice = diskTree.leftDevice(partition);
         
@@ -733,9 +730,8 @@ void PartitionerView::resizeDialogClosed(bool accepted, qreal size, qreal sb, qr
         }
     }
     
-    qDebug() << newOffset << newSize;
-    
-    m_manager->registerAction( new ResizePartitionAction(m_currentDevice, newOffset, newSize) );
+    bool safe = (newOffset == partition->offset());
+    m_manager->registerAction( new ResizePartitionAction(m_currentDevice, newOffset, newSize, safe) );
     checkErrors();
     afterOkClicked();
 }

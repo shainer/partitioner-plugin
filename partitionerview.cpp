@@ -518,7 +518,7 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         if (rightDevice && rightDevice->deviceType() == DeviceModified::FreeSpaceDevice) {
             afterSize = (double)(rightDevice->size());
         }
-         
+                 
         dialog->setProperty("before", beforeSize);
         dialog->setProperty("size", (double)(device->size()));
         dialog->setProperty("after", afterSize);
@@ -625,7 +625,7 @@ void PartitionerView::modifyDialogClosed(bool accepted, QString label)
      * This distinction avoids an uncessary operation when the label isn't actually changed, and plus
      * it gives us a more readable description for the action.
      */
-    if (label == partition->label()) {
+    if (label == partition->label() || partition->partitionTableScheme() == "mbr") {
         action = new Actions::ModifyPartitionAction(m_currentDevice, flags);
     }
     else {

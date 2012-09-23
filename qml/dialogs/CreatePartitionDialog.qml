@@ -25,6 +25,7 @@ Rectangle
     
     property string container /* the unique name of the free space block that will contain the new partition */
     property variant acceptedPartitionTypes /* whether the partition can be extended, logical, etc... */
+    property bool isLabelSupported /* whether the user must be allowed to insert a label */
     property variant supportedFilesystems
     property real freespace /* how many space is available for the partition in megabytes */
     
@@ -38,6 +39,7 @@ Rectangle
         /* Sets the items in the two comboboxes */
         typesComboBox.items = acceptedPartitionTypes;
         fsComboBox.items = supportedFilesystems;
+        labelInput.readOnly = !isLabelSupported;
         partitionSize.init(0.0, createPartitionDialog.freespace, 0.0, 0.0); /* sets the initial values for the spinboxes */
         
         parent.width = 450;

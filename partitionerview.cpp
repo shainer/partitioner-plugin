@@ -503,6 +503,9 @@ void PartitionerView::doActionButtonClicked(QString actionName)
         /* Possible types (logical, primary or extended) for the new partition */
         QStringList types = acceptedPartitionTypes(diskTree, device);
         dialog->setProperty("acceptedPartitionTypes", types);
+        
+        /* MBR doesn't support labeled partitions */
+        dialog->setProperty("isLabelSupported", disk->partitionTableScheme() != "mbr");
     }
     else if (actionName == RESIZE_PARTITION) {
         DeviceModified* leftDevice = diskTree.leftDevice(device);

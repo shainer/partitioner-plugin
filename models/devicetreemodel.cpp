@@ -53,18 +53,18 @@ int DeviceTreeModel::rowCount(const QModelIndex& parent) const
 /* Something unspecified changed in the meantime */
 void DeviceTreeModel::readDataAgain()
 {
-    emit beginResetModel();
-    emit endResetModel();
+    beginResetModel();
+    endResetModel();
 }
 
 QVariant DeviceTreeModel::data(const QModelIndex& index, int role) const
 {
-    if (index.row() < 0 || index.row() > rowCount()) {
+    if (index.row() < 0 || index.row() >= rowCount()) {
         return QVariant();
     }
     
     DeviceModified* device = m_disk.allDevices(false).at( index.row() );
-    
+
     switch (role) {
         case DeviceDescription:
             return device->description();
